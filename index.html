@@ -127,7 +127,7 @@ h1{
 }
 #close{position:absolute;z-index:10;bottom:25px}
 
-/* Sukuna's Malevolent Shrine */
+/* SUKUNA'S MALEVOLENT SHRINE */
 #domain.sukuna{background:#100303}
 #domain.sukuna #universe{
  background:radial-gradient(ellipse at center,#641313 0%,#280707 35%,#080202 75%)
@@ -174,7 +174,126 @@ h1{
  100%{opacity:0;scale:1.5}
 }
 
-/* Hakari's Idle Death Gamble */
+/* MAHITO'S SELF-EMBODIMENT OF PERFECTION */
+#domain.mahito{
+ background:radial-gradient(circle,#153e43 0%,#091c25 45%,#02070d 100%)
+}
+#domain.mahito #universe{
+ background:
+ radial-gradient(ellipse at center,#b5fff0 0%,#378e85 3%,#174c59 18%,#102332 45%,#02070d 75%);
+ animation:mahitoUniverse 5s cubic-bezier(.12,.75,.18,1) forwards
+}
+@keyframes mahitoUniverse{
+ 0%{transform:scale(.05) rotate(-30deg);filter:brightness(5) hue-rotate(50deg)}
+ 35%{transform:scale(.7) rotate(15deg);filter:brightness(2)}
+ 70%{transform:scale(1.2) rotate(-8deg)}
+ 100%{transform:scale(1) rotate(0);filter:brightness(1)}
+}
+#domain.mahito #galaxy{
+ background:repeating-radial-gradient(ellipse,transparent 0 18px,#6bdbcc55 20px 23px,transparent 25px 43px);
+ box-shadow:inset 0 0 100px #36b8a0,0 0 100px #1b948d;
+ animation:mahitoGalaxy 18s linear infinite
+}
+@keyframes mahitoGalaxy{
+ from{transform:translate(-50%,-50%) rotate(0) scale(.7)}
+ to{transform:translate(-50%,-50%) rotate(360deg) scale(1.15)}
+}
+#domain.mahito #stars{
+ opacity:.8;
+ background-image:
+ radial-gradient(3px 3px at 10% 20%,#cffff5 99%,transparent),
+ radial-gradient(2px 2px at 30% 70%,#6affdd 99%,transparent),
+ radial-gradient(3px 3px at 80% 40%,#fff 99%,transparent),
+ radial-gradient(2px 2px at 60% 15%,#9ffff0 99%,transparent)
+}
+#domain.mahito #stars2{opacity:.55}
+#domain.mahito #stars3{opacity:.35}
+#domain.mahito #energy{
+ background:conic-gradient(transparent,#4dffe477,transparent,#a5fff988,transparent,#1aa99eaa,transparent);
+ animation:mahitoEnergy 2.5s ease-out forwards
+}
+@keyframes mahitoEnergy{
+ 0%{opacity:0;transform:scale(.1) rotate(0)}
+ 35%{opacity:1;transform:scale(.8) rotate(150deg)}
+ 70%{opacity:.8;transform:scale(1.5) rotate(270deg)}
+ 100%{opacity:.15;transform:scale(2.2) rotate(360deg)}
+}
+#domain.mahito #ring{
+ border-color:#9effe6;
+ box-shadow:0 0 35px #4effd5,0 0 100px #00a99b;
+ animation:mahitoRing 3s ease-out forwards
+}
+@keyframes mahitoRing{
+ 0%{width:5vmin;height:5vmin;opacity:1}
+ 100%{width:180vmax;height:180vmax;opacity:0}
+}
+#domain.mahito #domainTitle{
+ color:#d8fff6;
+ text-shadow:0 0 15px white,0 0 40px #40eacb,0 0 90px #087d83;
+ animation:mahitoTitle 2s 2s forwards
+}
+#domain.mahito #subtitle{
+ color:#9dffea;letter-spacing:7px
+}
+@keyframes mahitoTitle{
+ 0%{opacity:0;transform:scale(2.5) rotate(-4deg);filter:blur(25px)}
+ 55%{opacity:1;transform:scale(.9) rotate(2deg);filter:blur(0)}
+ 75%{transform:scale(1.08) rotate(-1deg)}
+ 100%{opacity:1;transform:scale(1);filter:blur(0)}
+}
+
+/* MAHITO'S SOUL HANDS */
+#soulHands{
+ display:none;position:absolute;inset:0;z-index:4;
+ pointer-events:none
+}
+#domain.mahito #soulHands{display:block}
+.soulHand{
+ position:absolute;top:50%;
+ font-size:clamp(75px,18vw,170px);
+ filter:drop-shadow(0 0 22px #43f5d0);
+ opacity:0
+}
+#leftHand{
+ left:-25%;transform:translateY(-50%) rotate(-45deg);
+ animation:leftHandIn 2s .5s forwards,soulFloat 4s 2.5s ease-in-out infinite
+}
+#rightHand{
+ right:-25%;transform:translateY(-50%) rotate(45deg) scaleX(-1);
+ animation:rightHandIn 2s .7s forwards,soulFloat 4s 2.7s ease-in-out infinite
+}
+@keyframes leftHandIn{
+ 0%{left:-30%;opacity:0}
+ 70%{left:5%;opacity:1}
+ 100%{left:2%;opacity:.85}
+}
+@keyframes rightHandIn{
+ 0%{right:-30%;opacity:0}
+ 70%{right:5%;opacity:1}
+ 100%{right:2%;opacity:.85}
+}
+@keyframes soulFloat{
+ 0%,100%{translate:0 0;rotate:0deg}
+ 50%{translate:0 -22px;rotate:8deg}
+}
+#soulPulse{
+ display:none;position:absolute;z-index:2;
+ width:20vmin;height:20vmin;border-radius:50%;
+ left:50%;top:50%;transform:translate(-50%,-50%);
+ border:5px solid #70ffe2;
+ box-shadow:0 0 35px #32f5cb,inset 0 0 35px #32f5cb;
+ pointer-events:none
+}
+#domain.mahito #soulPulse{
+ display:block;animation:soulPulse 2.5s .7s ease-out infinite
+}
+@keyframes soulPulse{
+ 0%{width:10vmin;height:10vmin;opacity:0;filter:blur(8px)}
+ 25%{opacity:1}
+ 100%{width:110vmax;height:110vmax;opacity:0;filter:blur(2px)}
+}
+
+/* HAKARI'S IDLE DEATH GAMBLE */
 #hakariPage{
  background:#fff;color:#171717;
  font-family:Arial,sans-serif;
@@ -261,8 +380,10 @@ h1{
   <button class="character" onclick="openCharacter('hakari')">
    HAKARI<small>IDLE DEATH GAMBLE</small>
   </button>
+  <button class="character" onclick="openCharacter('mahito')">
+   MAHITO<small>SELF-EMBODIMENT OF PERFECTION</small>
+  </button>
   <div class="character offline">MEGUMI<small>COMING SOON</small></div>
-  <div class="character offline">MAHITO<small>COMING SOON</small></div>
  </div>
 </section>
 
@@ -283,11 +404,20 @@ h1{
  <div id="energy"></div>
  <div id="ring"></div>
  <div id="flash"></div>
+
  <div class="slash"></div>
  <div class="slash"></div>
  <div class="slash"></div>
  <div class="slash"></div>
+
  <div id="shrine">⛩️</div>
+
+ <div id="soulPulse"></div>
+ <div id="soulHands">
+  <div class="soulHand" id="leftHand">🖐️</div>
+  <div class="soulHand" id="rightHand">🖐️</div>
+ </div>
+
  <div>
   <div id="domainTitle">INFINITE VOID</div>
   <div id="subtitle">DOMAIN EXPANSION</div>
@@ -342,13 +472,15 @@ async function openCharacter(character){
  const names={
   gojo:"GOJO SATORU",
   sukuna:"RYOMEN SUKUNA",
-  hakari:"KINJI HAKARI"
+  hakari:"KINJI HAKARI",
+  mahito:"MAHITO"
  };
 
  const instructions={
   gojo:"Make Gojo's hand pose to activate Infinite Void",
   sukuna:"Use Gojo's pose or bring both hands together for Malevolent Shrine",
-  hakari:"Make Gojo's hand pose to spin Hakari's slot machine!"
+  hakari:"Make Gojo's hand pose to spin Hakari's slot machine!",
+  mahito:"Make Gojo's hand pose to activate Self-Embodiment of Perfection"
  };
 
  document.getElementById("characterName").textContent=names[character];
@@ -434,6 +566,10 @@ function onHandResults(results){
   statusText.textContent="IDLE DEATH GAMBLE!";
   startHakari();
  }
+ else if(selectedCharacter==="mahito"&&gojoPose){
+  statusText.textContent="SELF-EMBODIMENT OF PERFECTION!";
+  activateDomain();
+ }
  else{
   statusText.textContent=all.length?
    "Hand detected. Make your domain gesture.":
@@ -441,26 +577,43 @@ function onHandResults(results){
  }
 }
 
-/* GOJO AND SUKUNA DOMAINS */
+/* GOJO, SUKUNA AND MAHITO DOMAINS */
 function activateDomain(){
  if(domainActive||Date.now()-lastActivation<3500)return;
 
  lastActivation=Date.now();
  domainActive=true;
 
- domain.classList.toggle("sukuna",selectedCharacter==="sukuna");
+ domain.classList.remove("sukuna","mahito");
 
- document.getElementById("domainTitle").textContent=
-  selectedCharacter==="gojo"?"INFINITE VOID":"MALEVOLENT SHRINE";
+ if(selectedCharacter==="sukuna"){
+  domain.classList.add("sukuna");
+ }
+ if(selectedCharacter==="mahito"){
+  domain.classList.add("mahito");
+ }
 
- document.getElementById("subtitle").textContent=
-  selectedCharacter==="gojo"?"DOMAIN EXPANSION":"RYOMEN SUKUNA";
+ const titles={
+  gojo:"INFINITE VOID",
+  sukuna:"MALEVOLENT SHRINE",
+  mahito:"SELF-EMBODIMENT OF PERFECTION"
+ };
+
+ const subtitles={
+  gojo:"DOMAIN EXPANSION",
+  sukuna:"RYOMEN SUKUNA",
+  mahito:"DOMAIN EXPANSION"
+ };
+
+ document.getElementById("domainTitle").textContent=titles[selectedCharacter];
+ document.getElementById("subtitle").textContent=subtitles[selectedCharacter];
 
  showPage(domain);
 
  [
   "universe","stars","stars2","stars3","galaxy",
-  "energy","ring","flash","domainTitle","subtitle","shrine"
+  "energy","ring","flash","domainTitle","subtitle",
+  "shrine","leftHand","rightHand","soulPulse"
  ].forEach(id=>{
   const el=document.getElementById(id);
   el.style.animation="none";
@@ -471,7 +624,7 @@ function activateDomain(){
 
 function closeDomain(){
  domainActive=false;
- domain.classList.remove("sukuna");
+ domain.classList.remove("sukuna","mahito");
  showPage(cameraPage);
 }
 
@@ -514,14 +667,12 @@ function spinSlots(){
   reel.classList.add("spinning");
  });
 
- /* Each reel gets its own random number from 1 to 7. */
  const results=[
   Math.floor(Math.random()*7)+1,
   Math.floor(Math.random()*7)+1,
   Math.floor(Math.random()*7)+1
  ];
 
- /* Animate the reels before showing their results. */
  let ticks=0;
  const animation=setInterval(()=>{
   reels.forEach(reel=>{
@@ -564,7 +715,6 @@ function activateJackpot(){
  const timer=document.getElementById("jackpotTimer");
  timer.style.display="block";
 
- /* 4 minutes and 11 seconds = 251 seconds. */
  let seconds=251;
  updateTimer(seconds);
 
@@ -619,8 +769,12 @@ function backToMenu(){
   video.srcObject=null;
  }
 
- hands=null;
- domain.classList.remove("sukuna");
+ if(hands){
+  hands.close();
+  hands=null;
+ }
+
+ domain.classList.remove("sukuna","mahito");
  hakariPage.classList.remove("jackpot");
  showPage(menu);
 }
