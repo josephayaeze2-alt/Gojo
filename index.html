@@ -9,31 +9,48 @@
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js"></script>
 
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#03030b;color:white;font-family:Arial,sans-serif;overflow:hidden}
-.page{position:absolute;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;text-align:center;overflow:hidden}
+.page{position:absolute;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;text-align:center;overflow:auto}
 .page.active{display:flex}
-button{border:1px solid #80caff;background:#101d39;color:white;padding:13px 22px;border-radius:8px;font-size:16px;cursor:pointer}
+button{border:1px solid #80caff;background:#101d39;color:white;padding:13px 22px;border-radius:8px;font-size:16px;cursor:pointer;margin:5px}
 button:hover{filter:brightness(1.5)}
-h1{font-size:clamp(35px,8vw,70px);letter-spacing:5px;text-shadow:0 0 25px #64baff}
+button:disabled{opacity:.4}
+h1{font-size:clamp(30px,8vw,65px);letter-spacing:4px;text-shadow:0 0 25px #64baff}
 #menu{background:radial-gradient(circle,#142c55,#050610 65%)}
-.characters{display:grid;grid-template-columns:repeat(2,minmax(130px,190px));gap:12px;margin:20px}
-.character{padding:22px 10px;border:1px solid #4c8ecb;border-radius:10px;background:#101b31}
+.characters{display:grid;grid-template-columns:repeat(2,minmax(130px,190px));gap:12px;margin:15px}
+.character{padding:18px 8px;border:1px solid #4c8ecb;border-radius:10px;background:#101b31}
 .character small{display:block;margin-top:8px;color:#9bb9df}
 #cameraPage{background:#050914}
 #camera{width:min(90vw,520px);border:2px solid #65baff;border-radius:12px;transform:scaleX(-1)}
-#status{color:#a8d9ff;margin:15px;max-width:90%}
+#status{color:#a8d9ff;margin:12px;max-width:90%}
+
+/* BATTLE */
+#battlePage{background:radial-gradient(circle,#17264a,#03030b 75%);padding:12px;gap:8px}
+#battleTitle{margin:5px}
+#battleVideo{width:min(90vw,420px);max-height:32vh;object-fit:cover;transform:scaleX(-1);border:2px solid #65baff;border-radius:12px;background:#111}
+#battleStatus{color:#9edcff;min-height:25px;margin:3px}
+.healthRow{width:min(90vw,520px);display:flex;justify-content:space-between;gap:15px}
+.healthBox{width:50%;text-align:left}
+.healthBox span{font-weight:bold}
+.healthBar{height:16px;background:#333;border:1px solid #aaa;border-radius:10px;overflow:hidden;margin-top:5px}
+.healthFill{height:100%;width:100%;background:#35df72;transition:width .3s}
+#cpuHealthFill{background:#f04444}
+#battleControls{display:flex;flex-wrap:wrap;justify-content:center;gap:5px}
+#battleMessage{font-size:clamp(18px,4vw,25px);font-weight:bold;min-height:28px;color:#fff}
+#battleHelp{font-size:13px;color:#9bb9df;max-width:95%}
+
+/* DOMAIN */
 #domain{background:#02020a;opacity:0;pointer-events:none;transition:opacity .5s}
 #domain.active{opacity:1;pointer-events:auto}
-
-/* SHARED DOMAIN */
 #universe{position:absolute;inset:-20%;background:radial-gradient(ellipse,#e6f8ff 0%,#799dff 2%,#222b80 9%,#090b29 30%,#02020b 68%);transform:scale(.1);animation:universeOpen 5s cubic-bezier(.12,.75,.18,1) forwards}
 @keyframes universeOpen{0%{transform:scale(.1);filter:brightness(5)}20%{transform:scale(.55);filter:brightness(3)}55%{transform:scale(1.15);filter:brightness(1.5)}100%{transform:scale(1);filter:brightness(1)}}
-#stars,#stars2,#stars3{position:absolute;inset:-50%;background-image:radial-gradient(2px 2px at 10% 20%,white 99%,transparent),radial-gradient(1px 1px at 30% 70%,white 99%,transparent),radial-gradient(2px 2px at 80% 40%,#bceaff 99%,transparent),radial-gradient(1px 1px at 60% 15%,white 99%,transparent),radial-gradient(2px 2px at 90% 85%,white 99%,transparent);background-size:230px 230px;animation:starMove 35s linear infinite}
-#stars2{background-size:160px 160px;opacity:.65;animation-duration:22s}
-#stars3{background-size:310px 310px;opacity:.5;animation-duration:50s}
+#stars,#stars2,#stars3{position:absolute;inset:-50%;background-image:radial-gradient(2px 2px at 10% 20%,white 99%,transparent),radial-gradient(1px 1px at 30% 70%,white 99%,transparent),radial-gradient(2px 2px at 80% 40%,#bceaff 99%,transparent),radial-gradient(1px 1px at 60% 15%,white 99%,transparent);background-size:230px 230px;animation:starMove 35s linear infinite}
+#stars2{background-size:160px 160px;opacity:.65}
+#stars3{background-size:310px 310px;opacity:.5}
 @keyframes starMove{to{transform:rotate(360deg) scale(1.2)}}
 #galaxy{position:absolute;width:140vmax;height:140vmax;border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%);background:repeating-radial-gradient(ellipse,transparent 0 22px,rgba(151,199,255,.12) 24px 26px,transparent 28px 48px);box-shadow:inset 0 0 100px #718fff,0 0 100px #354fbd;animation:galaxySpin 80s linear infinite}
 @keyframes galaxySpin{to{rotate:360deg}}
@@ -43,16 +60,13 @@ h1{font-size:clamp(35px,8vw,70px);letter-spacing:5px;text-shadow:0 0 25px #64baf
 @keyframes flash{0%,100%{opacity:0}20%{opacity:1}45%{opacity:.85}}
 #ring{position:absolute;width:15vmin;height:15vmin;border:3px solid #e6f8ff;border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%);box-shadow:0 0 30px #9bdfff,0 0 80px #477aff;animation:ring 3s ease-out forwards}
 @keyframes ring{to{width:180vmax;height:180vmax;opacity:0}}
-#domainTitle{position:relative;z-index:5;font-size:clamp(30px,8vw,90px);letter-spacing:5px;color:#f2f8ff;text-shadow:0 0 15px #fff,0 0 40px #70baff,0 0 90px #456dff;opacity:0;animation:titleIn 2s 2s forwards;padding:0 12px}
+#domainTitle{position:relative;z-index:5;font-size:clamp(28px,8vw,80px);letter-spacing:4px;color:#f2f8ff;text-shadow:0 0 15px #fff,0 0 40px #70baff,0 0 90px #456dff;opacity:0;animation:titleIn 2s 2s forwards;padding:0 12px}
 #subtitle{position:relative;z-index:5;color:#b9d9ff;letter-spacing:5px;opacity:0;animation:titleIn 2s 3s forwards}
 @keyframes titleIn{from{opacity:0;transform:scale(1.5);filter:blur(15px)}to{opacity:1;transform:scale(1);filter:blur(0)}}
 #close{position:absolute;z-index:10;bottom:25px}
-
-/* SUKUNA */
 #domain.sukuna{background:#100303}
-#domain.sukuna #universe{background:radial-gradient(ellipse,#641313 0%,#280707 35%,#080202 75%)}
+#domain.sukuna #universe{background:radial-gradient(ellipse,#641313,#280707 35%,#080202 75%)}
 #domain.sukuna #galaxy{background:repeating-radial-gradient(circle,transparent 0 35px,#a92323 37px 40px,transparent 43px 65px);box-shadow:inset 0 0 100px #8d1010,0 0 100px #a41414}
-#domain.sukuna #stars,#domain.sukuna #stars2,#domain.sukuna #stars3{opacity:.2}
 #domain.sukuna #energy{background:conic-gradient(transparent,#ff272766,transparent,#a00000aa,transparent,#ff7777aa,transparent)}
 #domain.sukuna #ring{border-color:#ff5555;box-shadow:0 0 35px red,0 0 100px #b00000}
 #domain.sukuna #domainTitle{color:#ffdddd;text-shadow:0 0 15px white,0 0 40px red,0 0 90px #a00000}
@@ -66,78 +80,48 @@ h1{font-size:clamp(35px,8vw,70px);letter-spacing:5px;text-shadow:0 0 25px #64baf
 #domain.sukuna .slash:nth-child(3){animation-delay:.5s;transform:rotate(75deg)}
 #domain.sukuna .slash:nth-child(4){animation-delay:.8s;transform:rotate(-70deg)}
 @keyframes slash{0%{opacity:0;scale:.2}30%{opacity:1}100%{opacity:0;scale:1.5}}
-
-/* MAHITO */
 #domain.mahito{background:radial-gradient(circle,#153e43,#091c25 45%,#02070d)}
-#domain.mahito #universe{background:radial-gradient(ellipse,#b5fff0 0%,#378e85 3%,#174c59 18%,#102332 45%,#02070d 75%);animation:mahitoUniverse 5s ease-out forwards}
-@keyframes mahitoUniverse{0%{transform:scale(.05) rotate(-30deg);filter:brightness(5)}35%{transform:scale(.7) rotate(15deg);filter:brightness(2)}70%{transform:scale(1.2) rotate(-8deg)}100%{transform:scale(1) rotate(0);filter:brightness(1)}}
-#domain.mahito #galaxy{background:repeating-radial-gradient(ellipse,transparent 0 18px,#6bdbcc55 20px 23px,transparent 25px 43px);box-shadow:inset 0 0 100px #36b8a0,0 0 100px #1b948d;animation:mahitoGalaxy 18s linear infinite}
-@keyframes mahitoGalaxy{from{transform:translate(-50%,-50%) rotate(0) scale(.7)}to{transform:translate(-50%,-50%) rotate(360deg) scale(1.15)}}
-#domain.mahito #stars{opacity:.8;background-image:radial-gradient(3px 3px at 10% 20%,#cffff5 99%,transparent),radial-gradient(2px 2px at 30% 70%,#6affdd 99%,transparent),radial-gradient(3px 3px at 80% 40%,#fff 99%,transparent),radial-gradient(2px 2px at 60% 15%,#9ffff0 99%,transparent)}
-#domain.mahito #energy{background:conic-gradient(transparent,#4dffe477,transparent,#a5fff988,transparent,#1aa99eaa,transparent)}
+#domain.mahito #universe{background:radial-gradient(ellipse,#b5fff0,#378e85 3%,#174c59 18%,#102332 45%,#02070d 75%)}
+#domain.mahito #galaxy{background:repeating-radial-gradient(ellipse,transparent 0 18px,#6bdbcc55 20px 23px,transparent 25px 43px);box-shadow:inset 0 0 100px #36b8a0,0 0 100px #1b948d}
 #domain.mahito #ring{border-color:#9effe6;box-shadow:0 0 35px #4effd5,0 0 100px #00a99b}
-#domain.mahito #domainTitle{color:#d8fff6;text-shadow:0 0 15px white,0 0 40px #40eacb,0 0 90px #087d83}
-#domain.mahito #subtitle{color:#9dffea;letter-spacing:7px}
+#domain.mahito #domainTitle{color:#d8fff6;text-shadow:0 0 15px white,0 0 40px #40eacb}
+#domain.mahito #subtitle{color:#9dffea}
 #soulHands{display:none;position:absolute;inset:0;z-index:4;pointer-events:none}
 #domain.mahito #soulHands{display:block}
 .soulHand{position:absolute;top:50%;font-size:clamp(75px,18vw,170px);filter:drop-shadow(0 0 22px #43f5d0);opacity:0}
-#leftHand{left:-25%;transform:translateY(-50%) rotate(-45deg);animation:leftHandIn 2s .5s forwards,soulFloat 4s 2.5s ease-in-out infinite}
-#rightHand{right:-25%;transform:translateY(-50%) rotate(45deg) scaleX(-1);animation:rightHandIn 2s .7s forwards,soulFloat 4s 2.7s ease-in-out infinite}
-@keyframes leftHandIn{0%{left:-30%;opacity:0}70%{left:5%;opacity:1}100%{left:2%;opacity:.85}}
-@keyframes rightHandIn{0%{right:-30%;opacity:0}70%{right:5%;opacity:1}100%{right:2%;opacity:.85}}
-@keyframes soulFloat{0%,100%{translate:0 0;rotate:0deg}50%{translate:0 -22px;rotate:8deg}}
-#soulPulse{display:none;position:absolute;z-index:2;width:20vmin;height:20vmin;border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%);border:5px solid #70ffe2;box-shadow:0 0 35px #32f5cb,inset 0 0 35px #32f5cb;pointer-events:none}
-#domain.mahito #soulPulse{display:block;animation:soulPulse 2.5s .7s ease-out infinite}
-@keyframes soulPulse{0%{width:10vmin;height:10vmin;opacity:0;filter:blur(8px)}25%{opacity:1}100%{width:110vmax;height:110vmax;opacity:0;filter:blur(2px)}}
-
-/* MEGUMI */
+#leftHand{left:2%;animation:leftIn 2s .5s forwards}
+#rightHand{right:2%;animation:rightIn 2s .7s forwards}
+@keyframes leftIn{to{opacity:.85;transform:translateY(-50%) rotate(-45deg)}}
+@keyframes rightIn{to{opacity:.85;transform:translateY(-50%) rotate(45deg)}}
 #domain.megumi{background:#010204}
-#domain.megumi #universe{background:radial-gradient(ellipse at 50% 80%,#34343b 0%,#17191e 18%,#08090d 48%,#000 80%);animation:shadowUniverse 5s ease-out forwards}
-@keyframes shadowUniverse{0%{transform:scale(.08);filter:brightness(5)}40%{transform:scale(.8);filter:brightness(1.8)}100%{transform:scale(1);filter:brightness(.65)}}
-#domain.megumi #galaxy{width:180vmax;height:180vmax;background:repeating-radial-gradient(ellipse,transparent 0 25px,#555a6655 27px 33px,transparent 36px 60px);box-shadow:inset 0 0 150px #555,0 0 100px #252832;animation:shadowGalaxy 30s linear infinite}
-@keyframes shadowGalaxy{from{transform:translate(-50%,-50%) rotate(0) scale(.7)}to{transform:translate(-50%,-50%) rotate(360deg) scale(1.2)}}
-#domain.megumi #stars,#domain.megumi #stars2,#domain.megumi #stars3{opacity:.12}
-#domain.megumi #energy{background:conic-gradient(transparent,#aeb8ca66,transparent,#333b4b99,transparent,#dce4ff66,transparent)}
-#domain.megumi #ring{border-color:#b8c0d0;box-shadow:0 0 35px #aeb8ca,0 0 100px #596274}
-#domain.megumi #domainTitle{color:#e0e4ec;text-shadow:0 0 15px white,0 0 40px #778399,0 0 90px #242b38}
-#domain.megumi #subtitle{color:#aeb8c9;letter-spacing:6px}
-#shadowPool{display:none;position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden}
+#domain.megumi #universe{background:radial-gradient(ellipse at 50% 80%,#34343b,#17191e 18%,#08090d 48%,#000 80%)}
+#domain.megumi #galaxy{background:repeating-radial-gradient(ellipse,transparent 0 25px,#555a6655 27px 33px,transparent 36px 60px);box-shadow:inset 0 0 150px #555,0 0 100px #252832}
+#domain.megumi #domainTitle{color:#e0e4ec;text-shadow:0 0 15px white,0 0 40px #778399}
+#domain.megumi #subtitle{color:#aeb8c9}
+#shadowPool{display:none;position:absolute;inset:0;z-index:3;pointer-events:none}
 #domain.megumi #shadowPool{display:block}
-.pool{position:absolute;width:120vw;height:45vh;bottom:-18%;left:50%;transform:translateX(-50%);border-radius:50%;background:radial-gradient(ellipse,#000 0%,#050609 42%,#171b24 62%,transparent 74%);filter:blur(7px);animation:poolMove 5s ease-in-out infinite alternate}
-@keyframes poolMove{from{transform:translateX(-50%) scaleX(.8);height:35vh}to{transform:translateX(-50%) scaleX(1.3);height:55vh}}
-.shadowWave{position:absolute;bottom:8%;left:-30%;width:160%;height:18vh;border-radius:50%;border-top:3px solid #737d91;box-shadow:0 -8px 30px #4b5260;opacity:.35;animation:waveMove 6s ease-in-out infinite alternate}
-@keyframes waveMove{from{transform:translateX(-5%) rotate(-4deg)}to{transform:translateX(5%) rotate(4deg)}}
-.shadowHand{position:absolute;bottom:-30%;font-size:clamp(75px,17vw,160px);filter:brightness(.15) drop-shadow(0 0 15px #737d91);animation:shadowRise 4s ease-in-out infinite alternate}
-.shadowHand.one{left:8%;animation-delay:.3s}
-.shadowHand.two{right:8%;animation-delay:1.2s}
-.shadowHand.three{left:43%;font-size:clamp(55px,12vw,110px);animation-delay:2s}
-@keyframes shadowRise{from{transform:translateY(0) rotate(-15deg);opacity:.15}to{transform:translateY(-45vh) rotate(12deg);opacity:.85}}
-.shadowCreature{position:absolute;z-index:2;font-size:clamp(65px,14vw,125px);filter:grayscale(1) brightness(.18) drop-shadow(0 0 15px #8790a2);opacity:0;animation:creatureRise 7s ease-in-out infinite}
-.creature1{left:12%;bottom:12%;animation-delay:1s}
-.creature2{right:12%;bottom:20%;animation-delay:3s}
-.creature3{left:45%;bottom:5%;animation-delay:5s}
-@keyframes creatureRise{0%,100%{opacity:0;transform:translateY(30px) scale(.7)}35%,65%{opacity:.8;transform:translateY(-35px) scale(1)}}
-.shadowRipple{position:absolute;width:30vmin;height:30vmin;border:2px solid #9ba5b8;border-radius:50%;left:50%;top:60%;transform:translate(-50%,-50%);box-shadow:0 0 35px #667085,inset 0 0 35px #667085;animation:shadowRipple 3s ease-out infinite}
-@keyframes shadowRipple{from{width:10vmin;height:10vmin;opacity:.8}to{width:120vmax;height:120vmax;opacity:0}}
+.pool{position:absolute;width:120vw;height:45vh;bottom:-18%;left:50%;transform:translateX(-50%);border-radius:50%;background:radial-gradient(ellipse,#000,#050609 42%,#171b24 62%,transparent 74%);filter:blur(7px)}
+.shadowHand{position:absolute;bottom:-10%;font-size:100px;filter:brightness(.15);animation:shadowRise 4s ease-in-out infinite alternate}
+.shadowHand.one{left:8%}.shadowHand.two{right:8%}.shadowHand.three{left:43%}
+@keyframes shadowRise{to{transform:translateY(-40vh);opacity:.8}}
+.shadowCreature{position:absolute;font-size:90px;opacity:.4;filter:grayscale(1) brightness(.3);animation:creature 5s infinite alternate}
+.creature1{left:12%;bottom:12%}.creature2{right:12%;bottom:20%}.creature3{left:45%;bottom:5%}
+@keyframes creature{to{transform:translateY(-40px) scale(1.2);opacity:.8}}
+#domain.mahito #soulPulse{display:block}
+#soulPulse{display:none;position:absolute;width:20vmin;height:20vmin;border:5px solid #70ffe2;border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%);box-shadow:0 0 35px #32f5cb;animation:pulse 2.5s infinite}
+@keyframes pulse{to{width:110vmax;height:110vmax;opacity:0}}
 
 /* HAKARI */
-#hakariPage{background:#fff;color:#171717;font-family:Arial,sans-serif}
-#hakariPage h1{color:#171717;text-shadow:0 0 15px #aaa;font-size:clamp(30px,7vw,65px);letter-spacing:3px;margin:10px}
-#hakariPage p{color:#333}
-#slotMachine{display:flex;gap:10px;justify-content:center;align-items:center;padding:20px;background:linear-gradient(145deg,#eee,#bbb);border:7px solid #777;border-radius:22px;box-shadow:0 0 25px #999,inset 0 0 15px #fff}
-.reel{width:clamp(75px,20vw,120px);height:clamp(95px,24vw,140px);display:flex;align-items:center;justify-content:center;background:white;border:4px solid #555;border-radius:12px;font-size:clamp(48px,12vw,75px);font-weight:bold;color:#222;box-shadow:inset 0 0 15px #aaa}
+#hakariPage{background:#fff;color:#171717}
+#hakariPage h1{color:#171717;text-shadow:0 0 15px #aaa}
+#slotMachine{display:flex;gap:10px;padding:20px;background:linear-gradient(145deg,#eee,#bbb);border:7px solid #777;border-radius:22px}
+.reel{width:clamp(75px,20vw,120px);height:clamp(95px,24vw,140px);display:flex;align-items:center;justify-content:center;background:white;border:4px solid #555;border-radius:12px;font-size:clamp(48px,12vw,75px);font-weight:bold;color:#222}
 .reel.spinning{animation:reelShake .12s linear infinite}
-@keyframes reelShake{0%{transform:translateY(-3px)}50%{transform:translateY(3px)}100%{transform:translateY(-3px)}}
+@keyframes reelShake{50%{transform:translateY(3px)}}
 #hakariStatus{min-height:35px;font-size:20px;font-weight:bold;color:#222;margin:12px}
-#jackpotTimer{font-size:clamp(30px,8vw,55px);font-weight:bold;color:#d49b00;display:none;text-shadow:0 0 12px #ffd700}
-#hakariPage.jackpot{background:radial-gradient(circle,#fff,#ffe77a 45%,#fff 80%);animation:jackpotPulse 1s ease-in-out infinite alternate}
-@keyframes jackpotPulse{from{filter:brightness(1)}to{filter:brightness(1.2)}}
-#hakariPage.jackpot #slotMachine{border-color:#e2b400;box-shadow:0 0 30px #ffcf00,0 0 80px #ffdc48}
-#hakariPage.jackpot .reel{color:#d49b00;border-color:#e2b400;box-shadow:inset 0 0 20px #ffe77a,0 0 15px #ffd700}
-#jackpotText{display:none;font-size:clamp(35px,9vw,75px);font-weight:1000;color:#e0a900;text-shadow:0 0 10px white,0 0 30px gold;animation:jackpotText 1s ease-in-out infinite alternate}
-@keyframes jackpotText{from{transform:scale(1)}to{transform:scale(1.12)}}
-#hakariClose{margin-top:15px}
-#spinButton{margin:10px;background:#222;color:white;border-color:#d5a900}
+#jackpotTimer{font-size:45px;font-weight:bold;color:#d49b00;display:none}
+#jackpotText{display:none;font-size:clamp(35px,9vw,75px);font-weight:1000;color:#e0a900}
+#hakariPage.jackpot{background:radial-gradient(circle,#fff,#ffe77a 45%,#fff 80%)}
 </style>
 </head>
 
@@ -153,42 +137,67 @@ h1{font-size:clamp(35px,8vw,70px);letter-spacing:5px;text-shadow:0 0 25px #64baf
   <button class="character" onclick="openCharacter('mahito')">MAHITO<small>SELF-EMBODIMENT OF PERFECTION</small></button>
   <button class="character" onclick="openCharacter('megumi')">MEGUMI<small>CHIMERA SHADOW GARDEN</small></button>
  </div>
+ <button onclick="showBattleSelect()">⚔️ BATTLE</button>
 </section>
 
 <section id="cameraPage" class="page">
  <h1 id="characterName">GOJO SATORU</h1>
  <p id="instructions">Show your hand to activate the domain</p>
- <video id="camera" autoplay playsinline></video>
+ <video id="camera" autoplay playsinline muted></video>
  <p id="status">Starting camera...</p>
  <button onclick="backToMenu()">BACK</button>
 </section>
 
-<section id="domain" class="page">
- <div id="universe"></div>
- <div id="galaxy"></div>
- <div id="stars"></div>
- <div id="stars2"></div>
- <div id="stars3"></div>
- <div id="energy"></div>
- <div id="ring"></div>
- <div id="flash"></div>
- <div class="slash"></div><div class="slash"></div><div class="slash"></div><div class="slash"></div>
- <div id="shrine">⛩️</div>
- <div id="soulPulse"></div>
- <div id="soulHands">
-  <div class="soulHand" id="leftHand">🖐️</div>
-  <div class="soulHand" id="rightHand">🖐️</div>
+<section id="battleSelect" class="page">
+ <h1>CHOOSE YOUR FIGHTER</h1>
+ <p>Select your character</p>
+ <div class="characters">
+  <button class="character" onclick="startBattle('gojo')">GOJO</button>
+  <button class="character" onclick="startBattle('sukuna')">SUKUNA</button>
+  <button class="character" onclick="startBattle('hakari')">HAKARI</button>
+  <button class="character" onclick="startBattle('mahito')">MAHITO</button>
+  <button class="character" onclick="startBattle('megumi')">MEGUMI</button>
  </div>
+ <button onclick="backToMenu()">BACK</button>
+</section>
+
+<section id="battlePage" class="page">
+ <h1 id="battleTitle">BATTLE</h1>
+ <div class="healthRow">
+  <div class="healthBox">
+   <span>YOU</span>
+   <div class="healthBar"><div id="playerHealthFill" class="healthFill"></div></div>
+   <span id="playerHealthText">100 HP</span>
+  </div>
+  <div class="healthBox">
+   <span>CPU</span>
+   <div class="healthBar"><div id="cpuHealthFill" class="healthFill"></div></div>
+   <span id="cpuHealthText">100 HP</span>
+  </div>
+ </div>
+ <video id="battleVideo" autoplay playsinline muted></video>
+ <div id="battleMessage">GET READY!</div>
+ <div id="battleStatus">Starting camera...</div>
+ <div id="battleControls">
+  <button id="attackButton" onclick="playerAttack()">PUNCH</button>
+  <button id="defendButton" onclick="playerBlock()">BLOCK</button>
+  <button id="domainButton" onclick="manualDomain()">DOMAIN</button>
+ </div>
+ <div id="battleHelp">Punch: extend your arm. Block: put both hands near your head. Domain: make your character's hand sign.</div>
+ <button onclick="backToMenu()">QUIT BATTLE</button>
+</section>
+
+<section id="domain" class="page">
+ <div id="universe"></div><div id="galaxy"></div>
+ <div id="stars"></div><div id="stars2"></div><div id="stars3"></div>
+ <div id="energy"></div><div id="ring"></div><div id="flash"></div>
+ <div class="slash"></div><div class="slash"></div><div class="slash"></div><div class="slash"></div>
+ <div id="shrine">⛩️</div><div id="soulPulse"></div>
+ <div id="soulHands"><div class="soulHand" id="leftHand">🖐️</div><div class="soulHand" id="rightHand">🖐️</div></div>
  <div id="shadowPool">
   <div class="pool"></div>
-  <div class="shadowWave"></div>
-  <div class="shadowRipple"></div>
-  <div class="shadowHand one">🖐</div>
-  <div class="shadowHand two">🖐</div>
-  <div class="shadowHand three">🖐</div>
-  <div class="shadowCreature creature1">🐺</div>
-  <div class="shadowCreature creature2">🐸</div>
-  <div class="shadowCreature creature3">🦅</div>
+  <div class="shadowHand one">🖐</div><div class="shadowHand two">🖐</div><div class="shadowHand three">🖐</div>
+  <div class="shadowCreature creature1">🐺</div><div class="shadowCreature creature2">🐸</div><div class="shadowCreature creature3">🦅</div>
  </div>
  <div>
   <div id="domainTitle">INFINITE VOID</div>
@@ -201,34 +210,42 @@ h1{font-size:clamp(35px,8vw,70px);letter-spacing:5px;text-shadow:0 0 25px #64baf
  <h1>IDLE DEATH GAMBLE</h1>
  <p>Bring both hands together to activate. Tap SPIN to roll!</p>
  <div id="slotMachine">
-  <div class="reel" id="reel1">?</div>
-  <div class="reel" id="reel2">?</div>
-  <div class="reel" id="reel3">?</div>
+  <div class="reel" id="reel1">?</div><div class="reel" id="reel2">?</div><div class="reel" id="reel3">?</div>
  </div>
  <div id="hakariStatus">Tap SPIN to start!</div>
  <div id="jackpotText">JACKPOT!!!</div>
  <div id="jackpotTimer">4:11</div>
- <button id="spinButton" onclick="spinSlots()">SPIN</button>
- <button id="hakariClose" onclick="closeHakari()">BACK TO CAMERA</button>
+ <button onclick="spinSlots()">SPIN</button>
+ <button onclick="closeHakari()">BACK TO CAMERA</button>
 </section>
 
 <script>
 const menu=document.getElementById("menu");
 const cameraPage=document.getElementById("cameraPage");
+const battleSelect=document.getElementById("battleSelect");
+const battlePage=document.getElementById("battlePage");
 const domain=document.getElementById("domain");
 const hakariPage=document.getElementById("hakariPage");
 const video=document.getElementById("camera");
+const battleVideo=document.getElementById("battleVideo");
 const statusText=document.getElementById("status");
 
-let camera=null;
-let hands=null;
-let faceMesh=null;
-let domainActive=false;
-let selectedCharacter="gojo";
-let lastActivation=0;
-let jackpotInterval=null;
-let spinInProgress=false;
-let mouthOpenSince=null;
+let camera=null,hands=null,faceMesh=null;
+let battleCamera=null,battleHands=null,battleFace=null,pose=null;
+let domainActive=false,selectedCharacter="gojo";
+let lastActivation=0,mouthOpenSince=null;
+let jackpotInterval=null,spinInProgress=false;
+
+let inBattle=false;
+let battleBusy=false;
+let playerHP=100,cpuHP=100;
+let playerDefending=false;
+let playerDomainUsed=false;
+let battleDomainTimer=null;
+let lastPunchTime=0,lastBlockTime=0;
+let previousLeftWrist=null,previousRightWrist=null;
+let blockWasActive=false;
+let playerCharacter="gojo";
 
 /* PAGE MANAGEMENT */
 function showPage(page){
@@ -236,32 +253,39 @@ function showPage(page){
  page.classList.add("active");
 }
 
-/* STOP CAMERA */
+/* DISTANCE */
+function distance(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
+
+/* STOP NORMAL CAMERA */
 function stopTracking(){
  if(camera){camera.stop();camera=null}
- if(video.srcObject){
-  video.srcObject.getTracks().forEach(track=>track.stop());
-  video.srcObject=null;
- }
+ if(video.srcObject){video.srcObject.getTracks().forEach(t=>t.stop());video.srcObject=null}
  if(hands){hands.close();hands=null}
  if(faceMesh){faceMesh.close();faceMesh=null}
 }
 
+/* STOP BATTLE CAMERA */
+function stopBattleTracking(){
+ if(battleCamera){battleCamera.stop();battleCamera=null}
+ if(battleVideo.srcObject){battleVideo.srcObject.getTracks().forEach(t=>t.stop());battleVideo.srcObject=null}
+ if(battleHands){battleHands.close();battleHands=null}
+ if(battleFace){battleFace.close();battleFace=null}
+ if(pose){pose.close();pose=null}
+ previousLeftWrist=null;
+ previousRightWrist=null;
+ blockWasActive=false;
+}
+
 /* CHARACTER SELECTION */
 async function openCharacter(character){
+ stopBattleTracking();
+ inBattle=false;
  selectedCharacter=character;
  domainActive=false;
  mouthOpenSince=null;
  lastActivation=0;
 
- const names={
-  gojo:"GOJO SATORU",
-  sukuna:"RYOMEN SUKUNA",
-  hakari:"KINJI HAKARI",
-  mahito:"MAHITO",
-  megumi:"MEGUMI FUSHIGURO"
- };
-
+ const names={gojo:"GOJO SATORU",sukuna:"RYOMEN SUKUNA",hakari:"KINJI HAKARI",mahito:"MAHITO",megumi:"MEGUMI FUSHIGURO"};
  const instructions={
   gojo:"Extend your index finger and curl the other fingers",
   sukuna:"Bring both hands close together",
@@ -272,35 +296,18 @@ async function openCharacter(character){
 
  document.getElementById("characterName").textContent=names[character];
  document.getElementById("instructions").textContent=instructions[character];
-
  showPage(cameraPage);
  statusText.textContent="Requesting camera permission...";
  stopTracking();
 
  try{
-  hands=new Hands({
-   locateFile:file=>`https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
-  });
-
-  hands.setOptions({
-   maxNumHands:2,
-   modelComplexity:1,
-   minDetectionConfidence:.65,
-   minTrackingConfidence:.65
-  });
-
+  hands=new Hands({locateFile:file=>`https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`});
+  hands.setOptions({maxNumHands:2,modelComplexity:1,minDetectionConfidence:.65,minTrackingConfidence:.65});
   hands.onResults(onHandResults);
 
   if(character==="mahito"){
-   faceMesh=new FaceMesh({
-    locateFile:file=>`https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
-   });
-   faceMesh.setOptions({
-    maxNumFaces:1,
-    refineLandmarks:true,
-    minDetectionConfidence:.6,
-    minTrackingConfidence:.6
-   });
+   faceMesh=new FaceMesh({locateFile:file=>`https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`});
+   faceMesh.setOptions({maxNumFaces:1,refineLandmarks:true,minDetectionConfidence:.6,minTrackingConfidence:.6});
    faceMesh.onResults(onFaceResults);
   }
 
@@ -308,154 +315,77 @@ async function openCharacter(character){
    onFrame:async()=>{
     if(hands)await hands.send({image:video});
     if(faceMesh)await faceMesh.send({image:video});
-   },
-   width:640,
-   height:480
+   },width:640,height:480
   });
-
   await camera.start();
-  statusText.textContent=character==="mahito"?
-   "Camera ready. Open your mouth to activate!":
-   "Camera ready. Make your domain gesture!";
- }catch(error){
-  statusText.textContent="Camera error. Allow camera access and use HTTPS.";
-  console.error(error);
- }
+  statusText.textContent=character==="mahito"?"Camera ready. Open your mouth to activate!":"Camera ready. Make your domain gesture!";
+ }catch(error){statusText.textContent="Camera error. Allow camera access and use HTTPS.";console.error(error)}
 }
 
-/* HAND DISTANCE */
-function distance(a,b){
- return Math.hypot(a.x-b.x,a.y-b.y);
-}
-
-/* GOJO: INDEX FINGER UP, OTHER FINGERS CURLED */
+/* HAND POSES */
 function isGojoPose(l){
  if(!l||!l[20])return false;
- const indexUp=distance(l[8],l[0])>distance(l[6],l[0])*1.12;
- const middleCurled=distance(l[12],l[0])<distance(l[10],l[0])*1.12;
- const ringCurled=distance(l[16],l[0])<distance(l[14],l[0])*1.12;
- const pinkyCurled=distance(l[20],l[0])<distance(l[18],l[0])*1.12;
- return indexUp&&middleCurled&&ringCurled&&pinkyCurled;
+ return distance(l[8],l[0])>distance(l[6],l[0])*1.12 &&
+ distance(l[12],l[0])<distance(l[10],l[0])*1.12 &&
+ distance(l[16],l[0])<distance(l[14],l[0])*1.12 &&
+ distance(l[20],l[0])<distance(l[18],l[0])*1.12;
+}
+function isSukunaPose(a){return a&&a.length>=2&&distance(a[0][0],a[1][0])<.30}
+function isHakariPose(a){
+ if(!a||a.length<2)return false;
+ let x=a[0],y=a[1];
+ return distance(x[0],y[0])<.38&&distance(x[8],y[8])<.30&&distance(x[12],y[12])<.32&&distance(x[4],y[4])<.34;
+}
+function isMegumiPose(a){
+ if(!a||a.length<2)return false;
+ let x=a[0],y=a[1];
+ return distance(x[0],y[0])<.48&&distance(x[8],y[8])<.24&&distance(x[4],y[4])<.24&&distance(x[4],x[8])<.22&&distance(y[4],y[8])<.22;
 }
 
-/* SUKUNA: TWO HANDS CLOSE */
-function isSukunaPose(allHands){
- if(!allHands||allHands.length<2)return false;
- return distance(allHands[0][0],allHands[1][0])<.30;
-}
-
-/* HAKARI: TWO HANDS BROUGHT TOGETHER */
-function isHakariPose(allHands){
- if(!allHands||allHands.length<2)return false;
- const a=allHands[0],b=allHands[1];
- const wrists=distance(a[0],b[0]);
- const indexTips=distance(a[8],b[8]);
- const middleTips=distance(a[12],b[12]);
- const thumbTips=distance(a[4],b[4]);
- return wrists<.38&&indexTips<.30&&middleTips<.32&&thumbTips<.34;
-}
-
-/* MEGUMI: BOTH HANDS CLOSE, THUMBS AND INDEX FINGERS MEET */
-function isMegumiPose(allHands){
- if(!allHands||allHands.length<2)return false;
- const a=allHands[0],b=allHands[1];
- const wrists=distance(a[0],b[0]);
- const indexTips=distance(a[8],b[8]);
- const thumbTips=distance(a[4],b[4]);
- const aPinch=distance(a[4],a[8]);
- const bPinch=distance(b[4],b[8]);
- return wrists<.48&&indexTips<.24&&thumbTips<.24&&aPinch<.22&&bPinch<.22;
-}
-
-/* MAHITO: MOUTH OPEN DETECTION ONLY */
+/* MAHITO MOUTH */
 function onFaceResults(results){
  if(selectedCharacter!=="mahito"||domainActive)return;
-
  const faces=results.multiFaceLandmarks||[];
- if(!faces.length){
-  mouthOpenSince=null;
-  return;
- }
-
+ if(!faces.length){mouthOpenSince=null;return}
  const face=faces[0];
- const mouthHeight=distance(face[13],face[14]);
- const faceHeight=distance(face[10],face[152]);
- const mouthRatio=mouthHeight/faceHeight;
- const mouthIsOpen=mouthRatio>.055;
-
- if(mouthIsOpen){
+ const ratio=distance(face[13],face[14])/distance(face[10],face[152]);
+ if(ratio>.055){
   if(mouthOpenSince===null)mouthOpenSince=Date.now();
   if(Date.now()-mouthOpenSince>450){
-   statusText.textContent="SELF-EMBODIMENT OF PERFECTION!";
    mouthOpenSince=null;
-   activateDomain();
+   if(inBattle)activateBattleDomain();
+   else activateDomain();
   }
- }else{
-  mouthOpenSince=null;
- }
+ }else mouthOpenSince=null;
 }
 
-/* CAMERA HAND DETECTION */
+/* NORMAL HAND TRACKING */
 function onHandResults(results){
  const all=results.multiHandLandmarks||[];
-
- /* Mahito is mouth-only: hand gestures do nothing */
+ if(inBattle||domainActive)return;
  if(selectedCharacter==="mahito")return;
 
- /* Hakari's gesture opens the domain. Spinning is button-only. */
  if(selectedCharacter==="hakari"){
-  if(domainActive)return;
   if(isHakariPose(all)&&Date.now()-lastActivation>1500){
    statusText.textContent="IDLE DEATH GAMBLE!";
    startHakari();
-  }else{
-   statusText.textContent=all.length?
-    "Bring both hands together to activate!":
-    "Show both hands to the camera.";
-  }
+  }else statusText.textContent=all.length?"Bring both hands together to activate!":"Show both hands to the camera.";
   return;
  }
 
- if(domainActive)return;
+ const gojo=all.some(isGojoPose);
+ const sukuna=isSukunaPose(all);
+ const megumi=isMegumiPose(all);
 
- const gojoPose=all.some(isGojoPose);
- const sukunaPose=isSukunaPose(all);
- const megumiPose=isMegumiPose(all);
-
- if(selectedCharacter==="gojo"&&gojoPose){
-  statusText.textContent="INFINITE VOID!";
-  activateDomain();
- }
- else if(selectedCharacter==="sukuna"&&(gojoPose||sukunaPose)){
-  statusText.textContent="MALEVOLENT SHRINE!";
-  activateDomain();
- }
- else if(selectedCharacter==="megumi"&&megumiPose){
-  statusText.textContent="CHIMERA SHADOW GARDEN!";
-  activateDomain();
- }
- else{
-  if(selectedCharacter==="megumi"){
-   statusText.textContent=all.length?
-    "Bring your hands and fingers together.":
-    "Show both hands to the camera.";
-  }else{
-   statusText.textContent=all.length?
-    "Hand detected. Make your domain gesture.":
-    "Show your hand to the camera.";
-  }
- }
+ if(selectedCharacter==="gojo"&&gojo)activateDomain();
+ else if(selectedCharacter==="sukuna"&&(gojo||sukuna))activateDomain();
+ else if(selectedCharacter==="megumi"&&megumi)activateDomain();
+ else statusText.textContent=all.length?"Hand detected. Make your domain gesture.":"Show your hand to the camera.";
 }
 
-/* ACTIVATE DOMAINS */
-function activateDomain(){
- if(domainActive||Date.now()-lastActivation<1500)return;
-
- lastActivation=Date.now();
- domainActive=true;
-
+/* DOMAIN DISPLAY */
+function prepareDomain(){
  domain.classList.remove("sukuna","mahito","megumi");
-
  if(selectedCharacter==="sukuna")domain.classList.add("sukuna");
  if(selectedCharacter==="mahito")domain.classList.add("mahito");
  if(selectedCharacter==="megumi")domain.classList.add("megumi");
@@ -463,131 +393,89 @@ function activateDomain(){
  const titles={
   gojo:"INFINITE VOID",
   sukuna:"MALEVOLENT SHRINE",
+  hakari:"IDLE DEATH GAMBLE",
   mahito:"SELF-EMBODIMENT OF PERFECTION",
   megumi:"CHIMERA SHADOW GARDEN"
  };
-
- const subtitles={
-  gojo:"DOMAIN EXPANSION",
-  sukuna:"RYOMEN SUKUNA",
-  mahito:"DOMAIN EXPANSION",
-  megumi:"MEGUMI FUSHIGURO"
- };
-
+ const subtitles={gojo:"DOMAIN EXPANSION",sukuna:"RYOMEN SUKUNA",hakari:"KINJI HAKARI",mahito:"DOMAIN EXPANSION",megumi:"MEGUMI FUSHIGURO"};
  document.getElementById("domainTitle").textContent=titles[selectedCharacter];
  document.getElementById("subtitle").textContent=subtitles[selectedCharacter];
 
- showPage(domain);
-
  [
-  "universe","stars","stars2","stars3","galaxy",
-  "energy","ring","flash","domainTitle","subtitle",
-  "shrine","leftHand","rightHand","soulPulse","shadowPool"
+  "universe","stars","stars2","stars3","galaxy","energy","ring","flash",
+  "domainTitle","subtitle","shrine","leftHand","rightHand","soulPulse","shadowPool"
  ].forEach(id=>{
   const el=document.getElementById(id);
-  if(el){
-   el.style.animation="none";
-   void el.offsetWidth;
-   el.style.animation="";
-  }
+  if(el){el.style.animation="none";void el.offsetWidth;el.style.animation=""}
  });
+ showPage(domain);
 }
 
+function activateDomain(){
+ if(domainActive||Date.now()-lastActivation<1500)return;
+ lastActivation=Date.now();
+ domainActive=true;
+ prepareDomain();
+}
 function closeDomain(){
  domainActive=false;
  mouthOpenSince=null;
  domain.classList.remove("sukuna","mahito","megumi");
- showPage(cameraPage);
+ if(inBattle){showPage(battlePage)}
+ else showPage(cameraPage);
 }
 
-/* HAKARI: IDLE DEATH GAMBLE */
+/* HAKARI NORMAL MODE */
 function startHakari(){
  if(domainActive||Date.now()-lastActivation<1500)return;
-
  lastActivation=Date.now();
  domainActive=true;
-
  hakariPage.classList.remove("jackpot");
  document.getElementById("jackpotText").style.display="none";
  document.getElementById("jackpotTimer").style.display="none";
  document.getElementById("hakariStatus").textContent="DOMAIN EXPANSION!";
  showPage(hakariPage);
 }
-
-/* SPIN BUTTON ONLY */
 function spinSlots(){
  if(spinInProgress)return;
-
  spinInProgress=true;
  clearInterval(jackpotInterval);
  jackpotInterval=null;
-
  hakariPage.classList.remove("jackpot");
  document.getElementById("jackpotText").style.display="none";
  document.getElementById("jackpotTimer").style.display="none";
  document.getElementById("hakariStatus").textContent="SPINNING...";
-
- const reels=[
-  document.getElementById("reel1"),
-  document.getElementById("reel2"),
-  document.getElementById("reel3")
- ];
-
- reels.forEach(reel=>reel.classList.add("spinning"));
-
- const results=[
-  Math.floor(Math.random()*7)+1,
-  Math.floor(Math.random()*7)+1,
-  Math.floor(Math.random()*7)+1
- ];
-
+ const reels=[document.getElementById("reel1"),document.getElementById("reel2"),document.getElementById("reel3")];
+ reels.forEach(r=>r.classList.add("spinning"));
+ const results=[1,2,3].map(()=>Math.floor(Math.random()*7)+1);
  let ticks=0;
  const animation=setInterval(()=>{
-  reels.forEach(reel=>{
-   reel.textContent=Math.floor(Math.random()*7)+1;
-  });
+  reels.forEach(r=>r.textContent=Math.floor(Math.random()*7)+1);
   ticks++;
-
   if(ticks>=15){
    clearInterval(animation);
-   reels.forEach((reel,index)=>{
-    reel.classList.remove("spinning");
-    reel.textContent=results[index];
-   });
+   reels.forEach((r,i)=>{r.classList.remove("spinning");r.textContent=results[i]});
    finishSpin(results);
   }
  },120);
 }
-
 function finishSpin(results){
  spinInProgress=false;
-
- if(results[0]===7&&results[1]===7&&results[2]===7){
-  activateJackpot();
- }else{
-  document.getElementById("hakariStatus").textContent=
-   "NO JACKPOT! TAP SPIN TO TRY AGAIN!";
- }
+ if(results.every(n=>n===7))activateJackpot();
+ else document.getElementById("hakariStatus").textContent="NO JACKPOT! TAP SPIN TO TRY AGAIN!";
 }
-
 function activateJackpot(){
  hakariPage.classList.add("jackpot");
  document.getElementById("hakariStatus").textContent="THE ODDS ARE IN YOUR FAVOR!";
  document.getElementById("jackpotText").style.display="block";
-
  const timer=document.getElementById("jackpotTimer");
  timer.style.display="block";
-
  let seconds=251;
  updateTimer(seconds);
-
  jackpotInterval=setInterval(()=>{
-  seconds--;
-  updateTimer(seconds);
-
+  seconds--;updateTimer(seconds);
   if(seconds<=0){
-   clearInterval(jackpotInterval);
-   jackpotInterval=null;
+   clearInterval(jackpotInterval);jackpotInterval=null;
    hakariPage.classList.remove("jackpot");
    document.getElementById("jackpotText").style.display="none";
    timer.style.display="none";
@@ -595,37 +483,261 @@ function activateJackpot(){
   }
  },1000);
 }
-
 function updateTimer(seconds){
- const minutes=Math.floor(seconds/60);
- const remaining=seconds%60;
- document.getElementById("jackpotTimer").textContent=
-  minutes+":"+String(remaining).padStart(2,"0");
+ document.getElementById("jackpotTimer").textContent=Math.floor(seconds/60)+":"+String(seconds%60).padStart(2,"0");
 }
-
 function closeHakari(){
- clearInterval(jackpotInterval);
- jackpotInterval=null;
- spinInProgress=false;
- domainActive=false;
+ clearInterval(jackpotInterval);jackpotInterval=null;
+ spinInProgress=false;domainActive=false;
  hakariPage.classList.remove("jackpot");
  showPage(cameraPage);
 }
 
+/* BATTLE SETUP */
+function showBattleSelect(){
+ stopTracking();
+ stopBattleTracking();
+ inBattle=false;
+ showPage(battleSelect);
+}
+async function startBattle(character){
+ stopTracking();
+ stopBattleTracking();
+ selectedCharacter=character;
+ playerCharacter=character;
+ inBattle=true;
+ battleBusy=false;
+ playerHP=100;cpuHP=100;
+ playerDefending=false;
+ playerDomainUsed=false;
+ lastPunchTime=0;lastBlockTime=0;
+ updateHealth();
+ document.getElementById("battleTitle").textContent=character.toUpperCase()+" VS CPU";
+ document.getElementById("battleMessage").textContent="BATTLE START!";
+ document.getElementById("battleStatus").textContent="Starting camera...";
+ showPage(battlePage);
+
+ try{
+  battleHands=new Hands({locateFile:file=>`https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`});
+  battleHands.setOptions({maxNumHands:2,modelComplexity:1,minDetectionConfidence:.65,minTrackingConfidence:.65});
+  battleHands.onResults(onBattleHands);
+
+  if(character==="mahito"){
+   battleFace=new FaceMesh({locateFile:file=>`https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`});
+   battleFace.setOptions({maxNumFaces:1,refineLandmarks:true,minDetectionConfidence:.6,minTrackingConfidence:.6});
+   battleFace.onResults(onBattleFace);
+  }
+
+  pose=new Pose({locateFile:file=>`https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`});
+  pose.setOptions({modelComplexity:1,smoothLandmarks:true,minDetectionConfidence:.6,minTrackingConfidence:.6});
+  pose.onResults(onPoseResults);
+
+  battleCamera=new Camera(battleVideo,{
+   onFrame:async()=>{
+    if(!inBattle||battleBusy)return;
+    if(pose)await pose.send({image:battleVideo});
+    if(battleHands)await battleHands.send({image:battleVideo});
+    if(battleFace)await battleFace.send({image:battleVideo});
+   },width:640,height:480
+  });
+  await battleCamera.start();
+  document.getElementById("battleStatus").textContent="Camera ready! Punch, block, or make your domain sign.";
+ }catch(error){
+  document.getElementById("battleStatus").textContent="Camera error. Allow camera access and use HTTPS.";
+  console.error(error);
+ }
+}
+
+/* BATTLE CAMERA: HAND SIGNS FOR DOMAIN */
+function onBattleHands(results){
+ if(!inBattle||battleBusy||playerDomainUsed)return;
+ const all=results.multiHandLandmarks||[];
+ let activated=false;
+
+ if(playerCharacter==="gojo")activated=all.some(isGojoPose);
+ if(playerCharacter==="sukuna")activated=all.some(isGojoPose)||isSukunaPose(all);
+ if(playerCharacter==="hakari")activated=isHakariPose(all);
+ if(playerCharacter==="megumi")activated=isMegumiPose(all);
+
+ if(activated)activateBattleDomain();
+}
+function onBattleFace(results){
+ if(!inBattle||battleBusy||playerDomainUsed||playerCharacter!=="mahito")return;
+ const faces=results.multiFaceLandmarks||[];
+ if(!faces.length){mouthOpenSince=null;return}
+ const f=faces[0];
+ const ratio=distance(f[13],f[14])/distance(f[10],f[152]);
+ if(ratio>.055){
+  if(mouthOpenSince===null)mouthOpenSince=Date.now();
+  if(Date.now()-mouthOpenSince>450){mouthOpenSince=null;activateBattleDomain()}
+ }else mouthOpenSince=null;
+}
+
+/* BATTLE CAMERA: PUNCH AND BLOCK */
+function onPoseResults(results){
+ if(!inBattle||battleBusy)return;
+ const l=results.poseLandmarks;
+ if(!l)return;
+
+ const nose=l[0],leftShoulder=l[11],rightShoulder=l[12];
+ const leftElbow=l[13],rightElbow=l[14];
+ const leftWrist=l[15],rightWrist=l[16];
+ if(!leftWrist||!rightWrist||!nose)return;
+
+ const now=Date.now();
+
+ // Block: raise both hands near or above your head.
+ const leftUp=leftWrist.y<nose.y+.12;
+ const rightUp=rightWrist.y<nose.y+.12;
+ const blocking=leftUp&&rightUp;
+
+ if(blocking&&!blockWasActive&&now-lastBlockTime>1200){
+  playerBlock();
+  lastBlockTime=now;
+ }
+ blockWasActive=blocking;
+
+ // Punch: quickly extend either arm forward/outward.
+ // A strong arm extension triggers one hit, with a cooldown.
+ const leftExtended=distance(leftWrist,leftShoulder)>.32&&distance(leftWrist,leftElbow)>.13;
+ const rightExtended=distance(rightWrist,rightShoulder)>.32&&distance(rightWrist,rightElbow)>.13;
+
+ const leftMoved=previousLeftWrist&&distance(leftWrist,previousLeftWrist)>.055;
+ const rightMoved=previousRightWrist&&distance(rightWrist,previousRightWrist)>.055;
+
+ if(now-lastPunchTime>1000&&(leftExtended&&leftMoved||rightExtended&&rightMoved)){
+  lastPunchTime=now;
+  playerAttack();
+ }
+ previousLeftWrist={x:leftWrist.x,y:leftWrist.y};
+ previousRightWrist={x:rightWrist.x,y:rightWrist.y};
+}
+
+/* PLAYER ACTIONS */
+function playerAttack(){
+ if(!inBattle||battleBusy)return;
+ battleBusy=true;
+ const damage=Math.floor(Math.random()*11)+10;
+ cpuHP=Math.max(0,cpuHP-damage);
+ document.getElementById("battleMessage").textContent="PUNCH! CPU -" + damage + " HP";
+ updateHealth();
+ checkBattleEnd();
+ if(inBattle)setTimeout(cpuTurn,1000);
+}
+function playerBlock(){
+ if(!inBattle||battleBusy)return;
+ battleBusy=true;
+ playerDefending=true;
+ document.getElementById("battleMessage").textContent="YOU BLOCKED! 🛡️";
+ document.getElementById("battleStatus").textContent="Your next CPU hit will be reduced.";
+ setTimeout(cpuTurn,900);
+}
+function manualDomain(){
+ if(!inBattle||battleBusy)return;
+ activateBattleDomain();
+}
+
+/* PLAYER DOMAIN: PLAY ANIMATION, THEN DAMAGE CPU */
+function activateBattleDomain(){
+ if(!inBattle||battleBusy||playerDomainUsed)return;
+ playerDomainUsed=true;
+ battleBusy=true;
+ domainActive=true;
+ mouthOpenSince=null;
+ document.getElementById("battleMessage").textContent="DOMAIN EXPANSION!";
+ document.getElementById("battleStatus").textContent="Your domain is activating...";
+ prepareDomain();
+
+ battleDomainTimer=setTimeout(()=>{
+  battleDomainTimer=null;
+  domainActive=false;
+  domain.classList.remove("sukuna","mahito","megumi");
+  showPage(battlePage);
+
+  const damage=55;
+  cpuHP=Math.max(0,cpuHP-damage);
+  document.getElementById("battleMessage").textContent="DOMAIN HIT! CPU -" + damage + " HP!";
+  document.getElementById("battleStatus").textContent="Your domain has damaged the CPU!";
+  updateHealth();
+  checkBattleEnd();
+  if(inBattle)setTimeout(cpuTurn,1200);
+ },5400);
+}
+
+/* CPU TURN */
+function cpuTurn(){
+ if(!inBattle)return;
+ if(cpuHP<=0||playerHP<=0){battleBusy=false;return}
+
+ const damage=Math.floor(Math.random()*13)+8;
+ let actual=damage;
+
+ if(playerDefending){
+  actual=Math.ceil(damage*.25);
+  playerDefending=false;
+  document.getElementById("battleMessage").textContent="YOU BLOCKED THE CPU'S ATTACK!";
+ }else{
+  document.getElementById("battleMessage").textContent="CPU ATTACKS!";
+ }
+ playerHP=Math.max(0,playerHP-actual);
+ updateHealth();
+ checkBattleEnd();
+
+ if(inBattle){
+  battleBusy=false;
+  document.getElementById("battleStatus").textContent="Your turn! Punch, block, or use your domain.";
+ }
+}
+
+/* HEALTH AND WIN/LOSS */
+function updateHealth(){
+ document.getElementById("playerHealthText").textContent=playerHP+" HP";
+ document.getElementById("cpuHealthText").textContent=cpuHP+" HP";
+ document.getElementById("playerHealthFill").style.width=playerHP+"%";
+ document.getElementById("cpuHealthFill").style.width=cpuHP+"%";
+}
+function checkBattleEnd(){
+ if(cpuHP<=0){
+  battleBusy=true;
+  document.getElementById("battleMessage").textContent="🏆 YOU WIN!";
+  document.getElementById("battleStatus").textContent="The CPU has been defeated!";
+  stopBattleTracking();
+  inBattle=false;
+  setTimeout(()=>{if(!inBattle)showBattleEndButtons("YOU WIN!")},700);
+ }else if(playerHP<=0){
+  battleBusy=true;
+  document.getElementById("battleMessage").textContent="💀 YOU LOST!";
+  document.getElementById("battleStatus").textContent="The CPU won this battle.";
+  stopBattleTracking();
+  inBattle=false;
+  setTimeout(()=>{if(!inBattle)showBattleEndButtons("YOU LOST!")},700);
+ }
+}
+function showBattleEndButtons(result){
+ const message=document.getElementById("battleMessage");
+ message.textContent=result;
+ document.getElementById("battleStatus").innerHTML="";
+ const controls=document.getElementById("battleControls");
+ controls.innerHTML='<button onclick="startBattle(playerCharacter)">REMATCH</button><button onclick="backToMenu()">MAIN MENU</button>';
+}
+
 /* RETURN TO MENU */
 function backToMenu(){
+ inBattle=false;
+ battleBusy=false;
  domainActive=false;
  spinInProgress=false;
  mouthOpenSince=null;
-
+ clearTimeout(battleDomainTimer);
+ battleDomainTimer=null;
  clearInterval(jackpotInterval);
  jackpotInterval=null;
-
  stopTracking();
-
+ stopBattleTracking();
  domain.classList.remove("sukuna","mahito","megumi");
  hakariPage.classList.remove("jackpot");
-
+ document.getElementById("battleControls").innerHTML=
+  '<button id="attackButton" onclick="playerAttack()">PUNCH</button><button id="defendButton" onclick="playerBlock()">BLOCK</button><button id="domainButton" onclick="manualDomain()">DOMAIN</button>';
  showPage(menu);
 }
 </script>
