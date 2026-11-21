@@ -4,172 +4,103 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Domain Expansion</title>
-
+<title>Jujutsu Kaisen - Domain Expansion</title>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
 
 <style>
 *{box-sizing:border-box}
-body{
- margin:0;background:#03030b;color:white;
- font-family:Arial,sans-serif;overflow:hidden;
-}
-button{
- border:1px solid #80caff;background:#101d39;color:white;
- padding:13px 25px;border-radius:8px;font-size:16px;
- cursor:pointer;
-}
-button:hover{background:#244d83}
-.page{
- position:absolute;inset:0;display:none;
- align-items:center;justify-content:center;
- flex-direction:column;text-align:center;
-}
+body{margin:0;background:#03030b;color:white;font-family:Arial,sans-serif;overflow:hidden}
+.page{position:absolute;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;text-align:center;overflow:hidden}
 .page.active{display:flex}
-#menu{
- background:radial-gradient(circle,#142c55,#050610 65%);
-}
-h1{
- font-size:clamp(35px,8vw,70px);
- letter-spacing:5px;text-shadow:0 0 25px #64baff;
-}
-.characters{
- display:grid;grid-template-columns:repeat(2,minmax(130px,190px));
- gap:12px;margin:20px;
-}
-.character{
- padding:22px 10px;border:1px solid #4c8ecb;
- border-radius:10px;background:#101b31;
-}
-.offline{opacity:.4}
+button{border:1px solid #80caff;background:#101d39;color:white;padding:13px 22px;border-radius:8px;font-size:16px;cursor:pointer}
+button:hover{filter:brightness(1.5)}
+h1{font-size:clamp(35px,8vw,70px);letter-spacing:5px;text-shadow:0 0 25px #64baff}
+#menu{background:radial-gradient(circle,#142c55,#050610 65%)}
+.characters{display:grid;grid-template-columns:repeat(2,minmax(130px,190px));gap:12px;margin:20px}
+.character{padding:22px 10px;border:1px solid #4c8ecb;border-radius:10px;background:#101b31}
+.character small{display:block;margin-top:8px;color:#9bb9df}
+.offline{opacity:.35}
 #cameraPage{background:#050914}
-#camera{
- width:min(90vw,520px);border:2px solid #65baff;
- border-radius:12px;transform:scaleX(-1);
-}
+#camera{width:min(90vw,520px);border:2px solid #65baff;border-radius:12px;transform:scaleX(-1)}
 #status{color:#a8d9ff;margin:15px}
-#domain{
- background:#02020a;overflow:hidden;
- opacity:0;pointer-events:none;
- transition:opacity .5s;
-}
+#domain{background:#02020a;opacity:0;pointer-events:none;transition:opacity .5s}
 #domain.active{opacity:1;pointer-events:auto}
-#universe{
- position:absolute;inset:-20%;
- background:
- radial-gradient(ellipse at 50% 50%,#d9f3ff 0%,#799dff 2%,#222b80 9%,#090b29 30%,#02020b 68%);
- transform:scale(.1);
- animation:universeOpen 5s cubic-bezier(.12,.75,.18,1) forwards;
-}
-@keyframes universeOpen{
- 0%{transform:scale(.1);filter:brightness(5)}
- 20%{transform:scale(.55);filter:brightness(3)}
- 55%{transform:scale(1.15);filter:brightness(1.5)}
- 100%{transform:scale(1);filter:brightness(1)}
-}
-#stars,#stars2,#stars3{
- position:absolute;inset:-50%;
- background-image:
- radial-gradient(2px 2px at 10% 20%,white 99%,transparent),
- radial-gradient(1px 1px at 30% 70%,white 99%,transparent),
- radial-gradient(2px 2px at 80% 40%,#bceaff 99%,transparent),
- radial-gradient(1px 1px at 60% 15%,white 99%,transparent),
- radial-gradient(2px 2px at 90% 85%,white 99%,transparent),
- radial-gradient(1px 1px at 45% 48%,white 99%,transparent);
- background-size:230px 230px;
- animation:starMove 35s linear infinite;
-}
+#universe{position:absolute;inset:-20%;background:radial-gradient(ellipse at 50% 50%,#e6f8ff 0%,#799dff 2%,#222b80 9%,#090b29 30%,#02020b 68%);transform:scale(.1);animation:universeOpen 5s cubic-bezier(.12,.75,.18,1) forwards}
+@keyframes universeOpen{0%{transform:scale(.1);filter:brightness(5)}20%{transform:scale(.55);filter:brightness(3)}55%{transform:scale(1.15);filter:brightness(1.5)}100%{transform:scale(1);filter:brightness(1)}}
+#stars,#stars2,#stars3{position:absolute;inset:-50%;background-image:radial-gradient(2px 2px at 10% 20%,white 99%,transparent),radial-gradient(1px 1px at 30% 70%,white 99%,transparent),radial-gradient(2px 2px at 80% 40%,#bceaff 99%,transparent),radial-gradient(1px 1px at 60% 15%,white 99%,transparent),radial-gradient(2px 2px at 90% 85%,white 99%,transparent);background-size:230px 230px;animation:starMove 35s linear infinite}
 #stars2{background-size:160px 160px;opacity:.65;animation-duration:22s}
 #stars3{background-size:310px 310px;opacity:.5;animation-duration:50s}
-@keyframes starMove{
- from{transform:rotate(0deg) scale(1)}
- to{transform:rotate(360deg) scale(1.2)}
-}
-#galaxy{
- position:absolute;width:140vw;height:140vw;max-width:1300px;max-height:1300px;
- border-radius:50%;left:50%;top:50%;
- transform:translate(-50%,-50%);
- background:repeating-radial-gradient(ellipse,
- transparent 0 22px,rgba(151,199,255,.12) 24px 26px,
- transparent 28px 48px);
- box-shadow:inset 0 0 100px #718fff,0 0 100px #354fbd;
- animation:galaxySpin 80s linear infinite;
-}
+@keyframes starMove{to{transform:rotate(360deg) scale(1.2)}}
+#galaxy{position:absolute;width:140vmax;height:140vmax;border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%);background:repeating-radial-gradient(ellipse,transparent 0 22px,rgba(151,199,255,.12) 24px 26px,transparent 28px 48px);box-shadow:inset 0 0 100px #718fff,0 0 100px #354fbd;animation:galaxySpin 80s linear infinite}
 @keyframes galaxySpin{to{rotate:360deg}}
-#energy{
- position:absolute;inset:0;pointer-events:none;
- background:conic-gradient(from 0deg at 50% 50%,
- transparent,#9ddcff55,transparent,#8b9aff66,transparent,#fff8,transparent);
+#energy{position:absolute;inset:0;pointer-events:none;background:conic-gradient(from 0deg at 50% 50%,transparent,#9ddcff55,transparent,#8b9aff66,transparent,#fff8,transparent);opacity:0;animation:energy 3s ease-out forwards}
+@keyframes energy{0%{opacity:0;transform:scale(.1)}30%{opacity:1;transform:scale(.5) rotate(120deg)}70%{opacity:.6;transform:scale(1.5) rotate(240deg)}100%{opacity:.1;transform:scale(2) rotate(360deg)}}
+#flash{position:absolute;inset:0;background:white;opacity:0;pointer-events:none;animation:flash .9s ease-out forwards}
+@keyframes flash{0%,100%{opacity:0}20%{opacity:1}45%{opacity:.85}}
+#ring{position:absolute;width:15vmin;height:15vmin;border:3px solid #e6f8ff;border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%);box-shadow:0 0 30px #9bdfff,0 0 80px #477aff;animation:ring 3s ease-out forwards}
+@keyframes ring{to{width:180vmax;height:180vmax;opacity:0}}
+#domainTitle{position:relative;z-index:5;font-size:clamp(38px,9vw,100px);letter-spacing:8px;color:#f2f8ff;text-shadow:0 0 15px #fff,0 0 40px #70baff,0 0 90px #456dff;opacity:0;animation:titleIn 2s 2s forwards}
+#subtitle{position:relative;z-index:5;color:#b9d9ff;letter-spacing:5px;opacity:0;animation:titleIn 2s 3s forwards}
+@keyframes titleIn{from{opacity:0;transform:scale(1.5);filter:blur(15px)}to{opacity:1;transform:scale(1);filter:blur(0)}}
+#close{position:absolute;z-index:10;bottom:25px}
+
+/* Sukuna's Malevolent Shrine */
+#domain.sukuna{background:#100303}
+#domain.sukuna #universe{
+ background:radial-gradient(ellipse at center,#641313 0%,#280707 35%,#080202 75%);
+}
+#domain.sukuna #galaxy{
+ background:repeating-radial-gradient(circle,transparent 0 35px,#a92323 37px 40px,transparent 43px 65px);
+ box-shadow:inset 0 0 100px #8d1010,0 0 100px #a41414;
+}
+#domain.sukuna #stars{opacity:.3}
+#domain.sukuna #stars2{opacity:.2}
+#domain.sukuna #stars3{opacity:.2}
+#domain.sukuna #energy{
+ background:conic-gradient(transparent,#ff272766,transparent,#a00000aa,transparent,#ff7777aa,transparent);
+}
+#domain.sukuna #ring{border-color:#ff5555;box-shadow:0 0 35px red,0 0 100px #b00000}
+#domain.sukuna #domainTitle{color:#ffdddd;text-shadow:0 0 15px white,0 0 40px red,0 0 90px #a00000}
+#domain.sukuna #subtitle{color:#ff9b9b}
+#shrine{
+ display:none;position:absolute;z-index:3;top:50%;left:50%;
+ transform:translate(-50%,-50%) scale(.4);
+ font-size:clamp(90px,25vw,240px);
+ filter:drop-shadow(0 0 25px red);
  opacity:0;
- animation:energy 3s ease-out forwards;
 }
-@keyframes energy{
- 0%{opacity:0;transform:scale(.1) rotate(0)}
- 30%{opacity:1;transform:scale(.5) rotate(120deg)}
- 70%{opacity:.6;transform:scale(1.5) rotate(240deg)}
- 100%{opacity:.1;transform:scale(2) rotate(360deg)}
+#domain.sukuna #shrine{display:block;animation:shrineAppear 3s 1s forwards}
+@keyframes shrineAppear{
+ 0%{opacity:0;transform:translate(-50%,-40%) scale(.4)}
+ 60%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}
+ 100%{opacity:1;transform:translate(-50%,-50%) scale(1)}
 }
-#flash{
- position:absolute;inset:0;background:white;opacity:0;
- pointer-events:none;animation:flash .9s ease-out forwards;
-}
-@keyframes flash{
- 0%,100%{opacity:0}
- 20%{opacity:1}
- 45%{opacity:.85}
-}
-#ring{
- position:absolute;width:15vmin;height:15vmin;
- border:3px solid #e6f8ff;border-radius:50%;
- left:50%;top:50%;transform:translate(-50%,-50%);
- box-shadow:0 0 30px #9bdfff,0 0 80px #477aff;
- animation:ring 3s ease-out forwards;
-}
-@keyframes ring{
- to{width:180vmax;height:180vmax;opacity:0}
-}
-#domainTitle{
- position:relative;z-index:5;
- font-size:clamp(38px,9vw,100px);
- letter-spacing:8px;
- color:#f2f8ff;
- text-shadow:0 0 15px #fff,0 0 40px #70baff,0 0 90px #456dff;
- opacity:0;animation:titleIn 2s 2s forwards;
-}
-@keyframes titleIn{
- from{opacity:0;transform:scale(1.5);filter:blur(15px)}
- to{opacity:1;transform:scale(1);filter:blur(0)}
-}
-#subtitle{
- position:relative;z-index:5;color:#b9d9ff;
- letter-spacing:5px;opacity:0;
- animation:titleIn 2s 3s forwards;
-}
-#close{
- position:absolute;z-index:10;bottom:25px;
-}
-#domain.active #close{animation:titleIn 1s 4s forwards}
+.slash{position:absolute;z-index:2;left:50%;top:50%;width:3px;height:120vh;background:linear-gradient(transparent,#ff3333,white,#ff3333,transparent);box-shadow:0 0 18px red;opacity:0;transform:rotate(45deg)}
+#domain.sukuna .slash{animation:slash 1.2s ease-out infinite}
+#domain.sukuna .slash:nth-child(2){animation-delay:.2s;transform:rotate(-35deg)}
+#domain.sukuna .slash:nth-child(3){animation-delay:.5s;transform:rotate(75deg)}
+#domain.sukuna .slash:nth-child(4){animation-delay:.8s;transform:rotate(-70deg)}
+@keyframes slash{0%{opacity:0;scale:.2}30%{opacity:1}100%{opacity:0;scale:1.5}}
 </style>
 </head>
 
 <body>
-
 <section id="menu" class="page active">
  <h1>DOMAIN EXPANSION</h1>
  <p>Choose your sorcerer</p>
  <div class="characters">
-  <button class="character" onclick="openGojo()">GOJO<br>ONLINE</button>
-  <div class="character offline">SUKUNA<br>COMING SOON</div>
-  <div class="character offline">HAKARI<br>COMING SOON</div>
-  <div class="character offline">MEGUMI<br>COMING SOON</div>
-  <div class="character offline">MAHITO<br>COMING SOON</div>
+  <button class="character" onclick="openCharacter('gojo')">GOJO<small>INFINITE VOID</small></button>
+  <button class="character" onclick="openCharacter('sukuna')">SUKUNA<small>MALEVOLENT SHRINE</small></button>
+  <div class="character offline">HAKARI<small>COMING SOON</small></div>
+  <div class="character offline">MEGUMI<small>COMING SOON</small></div>
+  <div class="character offline">MAHITO<small>COMING SOON</small></div>
  </div>
 </section>
 
 <section id="cameraPage" class="page">
- <h1>GOJO SATORU</h1>
- <p>Show your hand to activate the domain</p>
+ <h1 id="characterName">GOJO SATORU</h1>
+ <p id="instructions">Show your hand to activate the domain</p>
  <video id="camera" autoplay playsinline></video>
  <p id="status">Starting camera...</p>
  <button onclick="backToMenu()">BACK</button>
@@ -178,12 +109,10 @@ h1{
 <section id="domain" class="page">
  <div id="universe"></div>
  <div id="galaxy"></div>
- <div id="stars"></div>
- <div id="stars2"></div>
- <div id="stars3"></div>
- <div id="energy"></div>
- <div id="ring"></div>
- <div id="flash"></div>
+ <div id="stars"></div><div id="stars2"></div><div id="stars3"></div>
+ <div id="energy"></div><div id="ring"></div><div id="flash"></div>
+ <div class="slash"></div><div class="slash"></div><div class="slash"></div><div class="slash"></div>
+ <div id="shrine">⛩️</div>
  <div>
   <div id="domainTitle">INFINITE VOID</div>
   <div id="subtitle">DOMAIN EXPANSION</div>
@@ -198,82 +127,97 @@ const domain=document.getElementById("domain");
 const video=document.getElementById("camera");
 const statusText=document.getElementById("status");
 
-let camera=null;
-let hands=null;
-let domainActive=false;
-let lastActivation=0;
+let camera=null,hands=null,domainActive=false;
+let selectedCharacter="gojo",lastActivation=0;
 
 function showPage(page){
  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
  page.classList.add("active");
 }
 
-async function openGojo(){
+async function openCharacter(character){
+ selectedCharacter=character;
+ document.getElementById("characterName").textContent=
+  character==="gojo"?"GOJO SATORU":"RYOMEN SUKUNA";
+ document.getElementById("instructions").textContent=
+  character==="gojo"?"Make Gojo's hand pose to activate Infinite Void":
+  "Use Gojo's pose or bring both hands together for Malevolent Shrine";
  showPage(cameraPage);
  statusText.textContent="Requesting camera permission...";
+
  try{
-  hands=new Hands({
-   locateFile:(file)=>`https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
-  });
+  hands=new Hands({locateFile:file=>
+   `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`});
   hands.setOptions({
-   maxNumHands:1,
-   modelComplexity:1,
-   minDetectionConfidence:.7,
-   minTrackingConfidence:.7
+   maxNumHands:2,modelComplexity:1,
+   minDetectionConfidence:.7,minTrackingConfidence:.7
   });
   hands.onResults(onHandResults);
 
   camera=new Camera(video,{
-   onFrame:async()=>{
-    if(hands) await hands.send({image:video});
-   },
-   width:640,
-   height:480
+   onFrame:async()=>{if(hands)await hands.send({image:video})},
+   width:640,height:480
   });
   await camera.start();
-  statusText.textContent="Camera ready. Extend your index finger.";
+  statusText.textContent="Camera ready. Make your domain gesture!";
  }catch(error){
-  statusText.textContent="Camera error: allow camera access and use HTTPS.";
+  statusText.textContent="Camera error. Allow camera access and use HTTPS.";
   console.error(error);
  }
 }
 
-/* This is a simple index-finger pose detector, not crossed-finger recognition. */
-function isGojoPose(landmarks){
- const indexUp=landmarks[8].y<landmarks[6].y;
- const middleDown=landmarks[12].y>landmarks[10].y;
- const ringDown=landmarks[16].y>landmarks[14].y;
- const pinkyDown=landmarks[20].y>landmarks[18].y;
- return indexUp&&middleDown&&ringDown&&pinkyDown;
+/* Basic Gojo-style pose: index finger extended, other fingers curled. */
+function isGojoPose(l){
+ return l[8].y<l[6].y &&
+ l[12].y>l[10].y &&
+ l[16].y>l[14].y &&
+ l[20].y>l[18].y;
+}
+
+/* Approximation of Sukuna's two-hand sign:
+   both hands must be visible with wrists close together.
+   This is not an exact finger-by-finger sign detector. */
+function isSukunaPose(allHands){
+ if(!allHands||allHands.length<2)return false;
+ const a=allHands[0][0],b=allHands[1][0];
+ const distance=Math.hypot(a.x-b.x,a.y-b.y);
+ return distance<0.28;
 }
 
 function onHandResults(results){
  if(domainActive)return;
- if(results.multiHandLandmarks&&results.multiHandLandmarks.length){
-  const hand=results.multiHandLandmarks[0];
-  if(isGojoPose(hand)){
-   statusText.textContent="DOMAIN EXPANSION!";
-   if(Date.now()-lastActivation>4000){
-    lastActivation=Date.now();
-    activateDomain();
-   }
-  }else{
-   statusText.textContent="Hand detected. Make the activation pose.";
-  }
+ const all=results.multiHandLandmarks||[];
+ const gojoPose=all.some(isGojoPose);
+ const sukunaPose=isSukunaPose(all);
+
+ if(selectedCharacter==="gojo"&&gojoPose){
+  statusText.textContent="INFINITE VOID!";
+  activateDomain();
+ }else if(selectedCharacter==="sukuna"&&(gojoPose||sukunaPose)){
+  statusText.textContent="MALEVOLENT SHRINE!";
+  activateDomain();
  }else{
-  statusText.textContent="Show your hand to the camera.";
+  statusText.textContent=all.length?
+   "Hand detected. Make your domain gesture.":
+   "Show your hand to the camera.";
  }
 }
 
 function activateDomain(){
- if(domainActive)return;
+ if(domainActive||Date.now()-lastActivation<3500)return;
+ lastActivation=Date.now();
  domainActive=true;
+
+ domain.classList.toggle("sukuna",selectedCharacter==="sukuna");
+ document.getElementById("domainTitle").textContent=
+  selectedCharacter==="gojo"?"INFINITE VOID":"MALEVOLENT SHRINE";
+ document.getElementById("subtitle").textContent=
+  selectedCharacter==="gojo"?"DOMAIN EXPANSION":"RYOMEN SUKUNA";
+
  showPage(domain);
 
- // Restart the animation every time the domain opens.
- const animatedIds=["universe","stars","stars2","stars3","galaxy",
-                    "energy","ring","flash","domainTitle","subtitle"];
- animatedIds.forEach(id=>{
+ ["universe","stars","stars2","stars3","galaxy","energy",
+  "ring","flash","domainTitle","subtitle","shrine"].forEach(id=>{
   const el=document.getElementById(id);
   el.style.animation="none";
   void el.offsetWidth;
@@ -283,20 +227,19 @@ function activateDomain(){
 
 function closeDomain(){
  domainActive=false;
+ domain.classList.remove("sukuna");
  showPage(cameraPage);
 }
 
 function backToMenu(){
  domainActive=false;
- if(camera){
-  camera.stop();
-  camera=null;
- }
+ if(camera){camera.stop();camera=null}
  if(video.srcObject){
-  video.srcObject.getTracks().forEach(track=>track.stop());
+  video.srcObject.getTracks().forEach(t=>t.stop());
   video.srcObject=null;
  }
  hands=null;
+ domain.classList.remove("sukuna");
  showPage(menu);
 }
 </script>
