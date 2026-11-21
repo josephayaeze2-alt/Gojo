@@ -1,10 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>Domain Expansion</title>
+  <title>Domain Expansion Selector</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
@@ -16,6 +16,7 @@
 
     body {
       margin: 0;
+      min-height: 100vh;
       background: #050510;
       color: white;
       font-family: Arial, sans-serif;
@@ -23,7 +24,7 @@
     }
 
     button {
-      padding: 15px 22px;
+      padding: 14px 20px;
       margin: 8px;
       border: 1px solid #777;
       border-radius: 12px;
@@ -34,46 +35,50 @@
     }
 
     button:active {
-      transform: scale(0.97);
+      transform: scale(.98);
     }
 
     #menu {
-      padding: 35px 15px;
+      padding: 32px 14px;
     }
 
     h1 {
-      letter-spacing: 4px;
+      letter-spacing: 3px;
     }
 
     .domain {
       display: block;
-      width: min(90%, 430px);
+      width: min(92%, 460px);
       margin: 12px auto;
     }
 
     .online {
-      border-color: #65aaff;
+      border-color: #78aaff;
       background: #172554;
     }
 
     #message {
-      color: #ff7777;
-      min-height: 25px;
+      min-height: 26px;
+      color: #ff9b9b;
     }
 
     #gojoPage {
       display: none;
-      padding: 20px;
+      padding: 22px 12px;
     }
 
-    video {
-      width: min(90%, 420px);
-      border-radius: 15px;
+    #camera {
+      display: block;
+      width: min(92%, 460px);
+      margin: 16px auto;
+      border-radius: 16px;
+      background: #111;
       transform: scaleX(-1);
     }
 
     #status {
-      color: #9ccaff;
+      min-height: 26px;
+      color: #a9ceff;
     }
 
     #void {
@@ -81,43 +86,44 @@
       position: fixed;
       inset: 0;
       overflow: hidden;
+      z-index: 5;
       background:
         radial-gradient(
           ellipse at center,
-          #e7ddff 0%,
-          #7770d9 12%,
-          #25205f 35%,
-          #08051f 75%,
-          #000 100%
+          #eee7ff 0%,
+          #9990ed 10%,
+          #45409c 30%,
+          #171044 62%,
+          #02010b 100%
         );
-      z-index: 5;
-      animation: appear 1.2s ease-out;
+      animation: appear 1s ease-out;
     }
 
     #void h1 {
       position: relative;
       z-index: 2;
-      top: 40%;
-      font-size: clamp(30px, 7vw, 65px);
-      text-shadow: 0 0 25px #b9aaff;
+      top: 35%;
+      padding: 0 12px;
+      font-size: clamp(30px, 7vw, 64px);
+      text-shadow: 0 0 25px #d3caff;
     }
 
     #stars {
       position: absolute;
-      inset: 0;
+      inset: -100px;
       background-image:
         radial-gradient(2px 2px at 20% 30%, white 90%, transparent),
         radial-gradient(2px 2px at 70% 60%, white 90%, transparent),
-        radial-gradient(3px 3px at 45% 80%, #c8baff 90%, transparent),
+        radial-gradient(3px 3px at 45% 80%, #d5caff 90%, transparent),
         radial-gradient(2px 2px at 85% 15%, white 90%, transparent);
       background-size: 180px 180px;
-      animation: drift 8s linear infinite;
+      animation: drift 9s linear infinite;
     }
 
     #close {
       position: absolute;
-      z-index: 10;
-      bottom: 30px;
+      z-index: 3;
+      bottom: 28px;
       left: 50%;
       transform: translateX(-50%);
       background: #17122f;
@@ -126,7 +132,7 @@
     @keyframes appear {
       from {
         opacity: 0;
-        transform: scale(1.3);
+        transform: scale(1.15);
       }
 
       to {
@@ -149,9 +155,7 @@
 
 <body>
 
-  <!-- DOMAIN SELECTION MENU -->
-
-  <section id="menu">
+  <main id="menu">
     <h1>DOMAIN EXPANSION</h1>
     <p>CHOOSE YOUR DOMAIN</p>
 
@@ -159,46 +163,39 @@
       GOJO — INFINITE VOID · ONLINE
     </button>
 
-    <button class="domain" onclick="offline('Sukuna')">
+    <button class="domain" onclick="showOffline('SUKUNA')">
       SUKUNA — MALEVOLENT SHRINE
     </button>
 
-    <button class="domain" onclick="offline('Hakari')">
+    <button class="domain" onclick="showOffline('HAKARI')">
       HAKARI — IDLE DEATH GAMBLE
     </button>
 
-    <button class="domain" onclick="offline('Megumi')">
+    <button class="domain" onclick="showOffline('MEGUMI')">
       MEGUMI — CHIMERA SHADOW GARDEN
     </button>
 
-    <button class="domain" onclick="offline('Mahito')">
+    <button class="domain" onclick="showOffline('MAHITO')">
       MAHITO — SELF-EMBODIMENT OF PERFECTION
     </button>
 
-    <p id="message"></p>
-  </section>
-
-
-  <!-- GOJO CAMERA PAGE -->
+    <p id="message" aria-live="polite"></p>
+  </main>
 
   <section id="gojoPage">
     <h1>GOJO — INFINITE VOID</h1>
-
-    <p>Make Gojo's crossed-finger hand sign.</p>
+    <p>Hold Gojo's crossed-finger sign in front of the camera.</p>
 
     <video id="camera" autoplay playsinline muted></video>
 
-    <p id="status">Starting camera...</p>
+    <p id="status">Camera is starting...</p>
 
     <button onclick="backToMenu()">
       BACK TO DOMAINS
     </button>
   </section>
 
-
-  <!-- INFINITE VOID SCREEN -->
-
-  <div id="void">
+  <section id="void">
     <div id="stars"></div>
 
     <h1>
@@ -210,8 +207,7 @@
     <button id="close" onclick="closeDomain()">
       CLOSE DOMAIN
     </button>
-  </div>
-
+  </section>
 
   <script>
     const menu = document.getElementById("menu");
@@ -221,29 +217,27 @@
     const voidScreen = document.getElementById("void");
     const message = document.getElementById("message");
 
-    let camera = null;
     let hands = null;
-
+    let camera = null;
     let active = false;
-    let lastActivation = 0;
     let matchingFrames = 0;
+    let lastActivation = 0;
+    let starting = false;
 
-
-    // OFFLINE DOMAIN BUTTONS
-
-    function offline(name) {
+    function showOffline(name) {
       message.textContent =
-        name.toUpperCase() + " DOMAIN IS OFFLINE — COMING SOON!";
+        name + " DOMAIN IS OFFLINE — COMING SOON!";
     }
 
-
-    // OPEN GOJO'S DOMAIN PAGE
-
     async function openGojo() {
+      if (starting) return;
+
+      starting = true;
       menu.style.display = "none";
       gojoPage.style.display = "block";
 
-      message.textContent = "";
+      statusText.textContent =
+        "Requesting camera permission...";
 
       try {
         hands = new Hands({
@@ -254,43 +248,15 @@
         hands.setOptions({
           maxNumHands: 1,
           modelComplexity: 1,
-          minDetectionConfidence: 0.75,
-          minTrackingConfidence: 0.75
+          minDetectionConfidence: 0.65,
+          minTrackingConfidence: 0.65
         });
 
-        hands.onResults(results => {
-          if (
-            !results.multiHandLandmarks ||
-            !results.multiHandLandmarks.length
-          ) {
-            matchingFrames = 0;
-            statusText.textContent = "Show the crossed-finger sign";
-            return;
-          }
-
-          const points = results.multiHandLandmarks[0];
-
-          if (isGojoPose(points)) {
-            matchingFrames++;
-
-            statusText.textContent = "Gojo pose detected...";
-
-            if (
-              matchingFrames >= 12 &&
-              !active &&
-              Date.now() - lastActivation > 3000
-            ) {
-              activateDomain();
-            }
-          } else {
-            matchingFrames = 0;
-            statusText.textContent = "Gojo pose not detected";
-          }
-        });
+        hands.onResults(onHandResults);
 
         camera = new Camera(video, {
           onFrame: async () => {
-            if (hands) {
+            if (hands && video.readyState >= 2) {
               await hands.send({ image: video });
             }
           },
@@ -301,71 +267,93 @@
         await camera.start();
 
         statusText.textContent =
-          "Camera ready — make the Gojo sign!";
+          "Camera ready — show Gojo's crossed-finger sign.";
 
       } catch (error) {
-        statusText.textContent =
-          "Camera could not start. Check camera permission.";
-
         console.error(error);
+
+        statusText.textContent =
+          "Camera or hand tracking failed. Check camera permission and reload.";
+
+      } finally {
+        starting = false;
       }
     }
-
-
-    // HAND DETECTION HELPERS
 
     function distance(a, b) {
       return Math.hypot(
         a.x - b.x,
-        a.y - b.y
+        a.y - b.y,
+        (a.z || 0) - (b.z || 0)
       );
     }
 
-    function orientation(a, b, c) {
-      return (
-        (b.x - a.x) * (c.y - a.y) -
-        (b.y - a.y) * (c.x - a.x)
-      );
+    function fingerExtended(points, tip, pip) {
+      return distance(points[tip], points[0]) >
+        distance(points[pip], points[0]) * 1.12;
     }
 
-    function segmentsCross(a, b, c, d) {
-      const o1 = orientation(a, b, c);
-      const o2 = orientation(a, b, d);
-      const o3 = orientation(c, d, a);
-      const o4 = orientation(c, d, b);
-
-      return o1 * o2 < 0 && o3 * o4 < 0;
+    function fingerCurled(points, tip, pip) {
+      return distance(points[tip], points[0]) <
+        distance(points[pip], points[0]) * 1.08;
     }
 
+    function isGojoPose(points) {
+      const indexExtended =
+        fingerExtended(points, 8, 6);
 
-    // GOJO CROSSED-FINGER DETECTOR
-    // This is a starting approximation that needs camera testing.
-
-    function isGojoPose(p) {
-      const crossing = segmentsCross(
-        p[6],
-        p[7],
-        p[10],
-        p[11]
-      );
+      const middleCurled =
+        fingerCurled(points, 12, 10);
 
       const ringCurled =
-        distance(p[16], p[0]) <
-        distance(p[13], p[0]);
+        fingerCurled(points, 16, 14);
 
       const pinkyCurled =
-        distance(p[20], p[0]) <
-        distance(p[17], p[0]);
+        fingerCurled(points, 20, 18);
 
       return (
-        crossing &&
+        indexExtended &&
+        middleCurled &&
         ringCurled &&
         pinkyCurled
       );
     }
 
+    function onHandResults(results) {
+      const landmarks = results.multiHandLandmarks;
 
-    // ACTIVATE INFINITE VOID
+      if (!landmarks || landmarks.length === 0) {
+        matchingFrames = 0;
+
+        statusText.textContent =
+          "No hand found — move your hand into view.";
+
+        return;
+      }
+
+      const poseMatches = isGojoPose(landmarks[0]);
+
+      if (poseMatches) {
+        matchingFrames++;
+
+        statusText.textContent =
+          "Possible Gojo pose detected — hold still...";
+
+        if (
+          matchingFrames >= 10 &&
+          !active &&
+          Date.now() - lastActivation > 2500
+        ) {
+          activateDomain();
+        }
+
+      } else {
+        matchingFrames = 0;
+
+        statusText.textContent =
+          "Hand found, but Gojo's pose does not match yet.";
+      }
+    }
 
     function activateDomain() {
       active = true;
@@ -374,9 +362,6 @@
       voidScreen.style.display = "block";
     }
 
-
-    // CLOSE INFINITE VOID
-
     function closeDomain() {
       active = false;
       matchingFrames = 0;
@@ -384,23 +369,31 @@
       voidScreen.style.display = "none";
     }
 
+    async function backToMenu() {
+      closeDomain();
 
-    // RETURN TO DOMAIN MENU
-
-    function backToMenu() {
       if (camera) {
         camera.stop();
         camera = null;
       }
 
-      hands = null;
+      if (hands) {
+        await hands.close();
+        hands = null;
+      }
 
-      closeDomain();
+      video.srcObject = null;
 
       gojoPage.style.display = "none";
       menu.style.display = "block";
+
+      statusText.textContent = "Camera stopped.";
     }
 
+    window.addEventListener("pagehide", () => {
+      if (camera) camera.stop();
+      if (hands) hands.close();
+    });
   </script>
 
 </body>
