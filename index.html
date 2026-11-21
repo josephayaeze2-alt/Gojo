@@ -1,1 +1,215 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gojo - Infinite Void</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #050510;
+  color: white;
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
+
+#normal {
+  padding: 25px 15px;
+}
+
+h1 {
+  color: #bca8ff;
+  letter-spacing: 3px;
+}
+
+video {
+  width: 100%;
+  max-width: 420px;
+  height: 300px;
+  object-fit: cover;
+  transform: scaleX(-1);
+  border: 2px solid #9875ff;
+  border-radius: 15px;
+  margin-top: 15px;
+}
+
+button {
+  padding: 14px 22px;
+  margin: 12px;
+  background: #7651df;
+  color: white;
+  border: none;
+  border-radius: 9px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#void {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background:
+    radial-gradient(circle, #5144a0, #17143d 55%, #020208);
+  animation: appear 1s ease;
+}
+
+#void[hidden] {
+  display: none;
+}
+
+#void h1 {
+  color: white;
+  font-size: clamp(35px, 9vw, 75px);
+  text-shadow: 0 0 25px #c6aaff;
+}
+
+.japanese {
+  font-size: 45px;
+}
+
+@keyframes appear {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div id="normal">
+  <h1>DOMAIN EXPANSION</h1>
+  <h2>SHOW GOJO'S HAND SIGN</h2>
+
+  <video id="camera" autoplay playsinline muted></video>
+
+  <p id="status">Tap START CAMERA</p>
+  <button id="start">START CAMERA</button>
+</div>
+
+<section id="void" hidden>
+  <p class="japanese">領域展開</p>
+  <h1>INFINITE VOID</h1>
+  <p>無量空処</p>
+  <p>WELCOME TO MY DOMAIN</p>
+  <button id="close">CLOSE DOMAIN</button>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+
+<script>
+const video = document.getElementById("camera");
+const normal = document.getElementById("normal");
+const domain = document.getElementById("void");
+const statusText = document.getElementById("status");
+const startButton = document.getElementById("start");
+
+let active = false;
+let started = false;
+let lastGesture = 0;
+
+function toggleDomain() {
+  active = !active;
+  normal.hidden = active;
+  domain.hidden = !active;
+}
+
+function fingerUp(points, tip, joint) {
+  return points[tip].y < points[joint].y;
+}
+
+function isGojoPose(points) {
+  return (
+    fingerUp(points, 8, 6) &&
+    fingerUp(points, 12, 10) &&
+    !fingerUp(points, 16, 14) &&
+    !fingerUp(points, 20, 18)
+  );
+}
+
+const hands = new Hands({
+  locateFile: file =>
+    "https://cdn.jsdelivr.net/npm/@mediapipe/hands/" + file
+});
+
+hands.setOptions({
+  maxNumHands: 1,
+  modelComplexity: 1,
+  minDetectionConfidence: 0.7,
+  minTrackingConfidence: 0.7
+});
+
+hands.onResults(results => {
+  if (!started) return;
+
+  const detected = results.multiHandLandmarks;
+
+  if (detected && detected.length > 0) {
+    if (isGojoPose(detected[0])) {
+      const now = Date.now();
+
+      if (now - lastGesture > 2500) {
+        lastGesture = now;
+        toggleDomain();
+      }
+    }
+  }
+});
+
+startButton.addEventListener("click", async () => {
+  if (started) return;
+
+  startButton.disabled = true;
+  statusText.textContent = "Starting camera...";
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "user" },
+      audio: false
+    });
+
+    video.srcObject = stream;
+    await video.play();
+
+    const camera = new Camera(video, {
+      onFrame: async () => {
+        await hands.send({ image: video });
+      },
+      width: 640,
+      height: 480
+    });
+
+    await camera.start();
+
+    started = true;
+    statusText.textContent = "Camera ready! Show your hand sign.";
+  } catch (error) {
+    statusText.textContent = "Camera error: " + error.message;
+    startButton.disabled = false;
+  }
+});
+
+document.getElementById("close").addEventListener("click", () => {
+  if (active) toggleDomain();
+});
+</script>
+
+</body>
+</html>
