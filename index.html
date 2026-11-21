@@ -4,596 +4,301 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Domain Expansion Selector</title>
+<title>Domain Expansion</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
 
 <style>
-* {
-  box-sizing: border-box;
+*{box-sizing:border-box}
+body{
+ margin:0;background:#03030b;color:white;
+ font-family:Arial,sans-serif;overflow:hidden;
 }
-
-body {
-  margin: 0;
-  min-height: 100vh;
-  background: #050510;
-  color: white;
-  font-family: Arial, sans-serif;
-  text-align: center;
+button{
+ border:1px solid #80caff;background:#101d39;color:white;
+ padding:13px 25px;border-radius:8px;font-size:16px;
+ cursor:pointer;
 }
-
-button {
-  padding: 14px 20px;
-  margin: 8px;
-  border: 1px solid #777;
-  border-radius: 12px;
-  background: #17172b;
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
+button:hover{background:#244d83}
+.page{
+ position:absolute;inset:0;display:none;
+ align-items:center;justify-content:center;
+ flex-direction:column;text-align:center;
 }
-
-button:active {
-  transform: scale(.98);
+.page.active{display:flex}
+#menu{
+ background:radial-gradient(circle,#142c55,#050610 65%);
 }
-
-#menu {
-  padding: 32px 14px;
+h1{
+ font-size:clamp(35px,8vw,70px);
+ letter-spacing:5px;text-shadow:0 0 25px #64baff;
 }
-
-h1 {
-  letter-spacing: 3px;
+.characters{
+ display:grid;grid-template-columns:repeat(2,minmax(130px,190px));
+ gap:12px;margin:20px;
 }
-
-.domain {
-  display: block;
-  width: min(92%, 460px);
-  margin: 12px auto;
+.character{
+ padding:22px 10px;border:1px solid #4c8ecb;
+ border-radius:10px;background:#101b31;
 }
-
-.online {
-  border-color: #78aaff;
-  background: #172554;
+.offline{opacity:.4}
+#cameraPage{background:#050914}
+#camera{
+ width:min(90vw,520px);border:2px solid #65baff;
+ border-radius:12px;transform:scaleX(-1);
 }
-
-#message {
-  min-height: 26px;
-  color: #ff9b9b;
+#status{color:#a8d9ff;margin:15px}
+#domain{
+ background:#02020a;overflow:hidden;
+ opacity:0;pointer-events:none;
+ transition:opacity .5s;
 }
-
-#gojoPage {
-  display: none;
-  padding: 22px 12px;
+#domain.active{opacity:1;pointer-events:auto}
+#universe{
+ position:absolute;inset:-20%;
+ background:
+ radial-gradient(ellipse at 50% 50%,#d9f3ff 0%,#799dff 2%,#222b80 9%,#090b29 30%,#02020b 68%);
+ transform:scale(.1);
+ animation:universeOpen 5s cubic-bezier(.12,.75,.18,1) forwards;
 }
-
-#camera {
-  display: block;
-  width: min(92%, 460px);
-  margin: 16px auto;
-  border-radius: 16px;
-  background: #111;
-  transform: scaleX(-1);
+@keyframes universeOpen{
+ 0%{transform:scale(.1);filter:brightness(5)}
+ 20%{transform:scale(.55);filter:brightness(3)}
+ 55%{transform:scale(1.15);filter:brightness(1.5)}
+ 100%{transform:scale(1);filter:brightness(1)}
 }
-
-#status {
-  min-height: 26px;
-  color: #a9ceff;
+#stars,#stars2,#stars3{
+ position:absolute;inset:-50%;
+ background-image:
+ radial-gradient(2px 2px at 10% 20%,white 99%,transparent),
+ radial-gradient(1px 1px at 30% 70%,white 99%,transparent),
+ radial-gradient(2px 2px at 80% 40%,#bceaff 99%,transparent),
+ radial-gradient(1px 1px at 60% 15%,white 99%,transparent),
+ radial-gradient(2px 2px at 90% 85%,white 99%,transparent),
+ radial-gradient(1px 1px at 45% 48%,white 99%,transparent);
+ background-size:230px 230px;
+ animation:starMove 35s linear infinite;
 }
-
-/* INFINITE VOID */
-
-#void {
-  display: none;
-  position: fixed;
-  inset: 0;
-  overflow: hidden;
-  z-index: 5;
-  background: #03010c;
+#stars2{background-size:160px 160px;opacity:.65;animation-duration:22s}
+#stars3{background-size:310px 310px;opacity:.5;animation-duration:50s}
+@keyframes starMove{
+ from{transform:rotate(0deg) scale(1)}
+ to{transform:rotate(360deg) scale(1.2)}
 }
-
-#universe {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  background:
-    radial-gradient(
-      ellipse at center,
-      #eee7ff 0%,
-      #aaa0ff 9%,
-      #6552c5 25%,
-      #26145e 55%,
-      #02010b 100%
-    );
+#galaxy{
+ position:absolute;width:140vw;height:140vw;max-width:1300px;max-height:1300px;
+ border-radius:50%;left:50%;top:50%;
+ transform:translate(-50%,-50%);
+ background:repeating-radial-gradient(ellipse,
+ transparent 0 22px,rgba(151,199,255,.12) 24px 26px,
+ transparent 28px 48px);
+ box-shadow:inset 0 0 100px #718fff,0 0 100px #354fbd;
+ animation:galaxySpin 80s linear infinite;
 }
-
-#stars {
-  position: absolute;
-  inset: -100%;
-  background-image:
-    radial-gradient(2px 2px at 20% 30%, white 90%, transparent),
-    radial-gradient(2px 2px at 70% 60%, white 90%, transparent),
-    radial-gradient(3px 3px at 45% 80%, #d5caff 90%, transparent),
-    radial-gradient(2px 2px at 85% 15%, white 90%, transparent);
-  background-size: 160px 160px;
+@keyframes galaxySpin{to{rotate:360deg}}
+#energy{
+ position:absolute;inset:0;pointer-events:none;
+ background:conic-gradient(from 0deg at 50% 50%,
+ transparent,#9ddcff55,transparent,#8b9aff66,transparent,#fff8,transparent);
+ opacity:0;
+ animation:energy 3s ease-out forwards;
 }
-
-/* ENERGY LINES */
-
-#energy {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  pointer-events: none;
+@keyframes energy{
+ 0%{opacity:0;transform:scale(.1) rotate(0)}
+ 30%{opacity:1;transform:scale(.5) rotate(120deg)}
+ 70%{opacity:.6;transform:scale(1.5) rotate(240deg)}
+ 100%{opacity:.1;transform:scale(2) rotate(360deg)}
 }
-
-.streak {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 3px;
-  height: 75vh;
-  margin-left: -1.5px;
-  margin-top: -37.5vh;
-  transform-origin: center;
-  background: linear-gradient(
-    to bottom,
-    transparent,
-    #8a42ff,
-    #e4caff,
-    white,
-    #9c55ff,
-    transparent
-  );
-  box-shadow:
-    0 0 10px #a45aff,
-    0 0 25px #8c40ff;
+#flash{
+ position:absolute;inset:0;background:white;opacity:0;
+ pointer-events:none;animation:flash .9s ease-out forwards;
 }
-
-.streak:nth-child(1) { transform: rotate(0deg); }
-.streak:nth-child(2) { transform: rotate(30deg); }
-.streak:nth-child(3) { transform: rotate(60deg); }
-.streak:nth-child(4) { transform: rotate(90deg); }
-.streak:nth-child(5) { transform: rotate(120deg); }
-.streak:nth-child(6) { transform: rotate(150deg); }
-.streak:nth-child(7) { transform: rotate(180deg); }
-.streak:nth-child(8) { transform: rotate(210deg); }
-.streak:nth-child(9) { transform: rotate(240deg); }
-.streak:nth-child(10) { transform: rotate(270deg); }
-.streak:nth-child(11) { transform: rotate(300deg); }
-.streak:nth-child(12) { transform: rotate(330deg); }
-
-/* CENTRAL BURST */
-
-#burst {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: white;
-  transform: translate(-50%, -50%) scale(0);
-  box-shadow:
-    0 0 30px 15px #b58aff,
-    0 0 90px 45px #783cff;
-  opacity: 0;
+@keyframes flash{
+ 0%,100%{opacity:0}
+ 20%{opacity:1}
+ 45%{opacity:.85}
 }
-
-/* EXPANDING RING */
-
-#ring {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 40px;
-  height: 40px;
-  border: 5px solid #e5caff;
-  border-radius: 50%;
-  transform: translate(-50%, -50%) scale(0);
-  box-shadow:
-    0 0 20px #b45aff,
-    0 0 50px #8c40ff,
-    inset 0 0 20px #b45aff;
-  opacity: 0;
+#ring{
+ position:absolute;width:15vmin;height:15vmin;
+ border:3px solid #e6f8ff;border-radius:50%;
+ left:50%;top:50%;transform:translate(-50%,-50%);
+ box-shadow:0 0 30px #9bdfff,0 0 80px #477aff;
+ animation:ring 3s ease-out forwards;
 }
-
-#flash {
-  position: absolute;
-  inset: 0;
-  background: white;
-  opacity: 0;
-  pointer-events: none;
+@keyframes ring{
+ to{width:180vmax;height:180vmax;opacity:0}
 }
-
-#voidTitle {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 100%;
-  transform: translate(-50%, -50%) scale(.7);
-  opacity: 0;
-  z-index: 3;
-  font-size: clamp(30px, 7vw, 65px);
-  letter-spacing: 4px;
-  text-shadow:
-    0 0 15px #d6baff,
-    0 0 35px #a65aff,
-    0 0 70px #7540ff;
+#domainTitle{
+ position:relative;z-index:5;
+ font-size:clamp(38px,9vw,100px);
+ letter-spacing:8px;
+ color:#f2f8ff;
+ text-shadow:0 0 15px #fff,0 0 40px #70baff,0 0 90px #456dff;
+ opacity:0;animation:titleIn 2s 2s forwards;
 }
-
-#close {
-  position: absolute;
-  z-index: 5;
-  bottom: 28px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #17122f;
+@keyframes titleIn{
+ from{opacity:0;transform:scale(1.5);filter:blur(15px)}
+ to{opacity:1;transform:scale(1);filter:blur(0)}
 }
-
-/* DOMAIN ANIMATION */
-
-#void.playing #energy {
-  animation: energyAppear 2s ease forwards;
+#subtitle{
+ position:relative;z-index:5;color:#b9d9ff;
+ letter-spacing:5px;opacity:0;
+ animation:titleIn 2s 3s forwards;
 }
-
-#void.playing .streak {
-  animation: streakPull 1.5s cubic-bezier(.2,.7,.3,1) forwards;
+#close{
+ position:absolute;z-index:10;bottom:25px;
 }
-
-#void.playing #burst {
-  animation: burstAppear 1.5s ease-out forwards;
-}
-
-#void.playing #ring {
-  animation: ringExpand 2s ease-out forwards;
-}
-
-#void.playing #flash {
-  animation: flashEffect 1.5s ease-out forwards;
-}
-
-#void.playing #universe {
-  animation: universeAppear 2.5s ease forwards;
-}
-
-#void.playing #stars {
-  animation: starDrift 15s linear infinite;
-}
-
-#void.playing #voidTitle {
-  animation: titleAppear 1.5s 1.8s ease forwards;
-}
-
-@keyframes energyAppear {
-  0% { opacity: 0; }
-  20%, 70% { opacity: 1; }
-  100% { opacity: 0; }
-}
-
-@keyframes streakPull {
-  0% {
-    opacity: 0;
-    scale: 1;
-  }
-  20% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-    scale: .08;
-  }
-}
-
-@keyframes burstAppear {
-  0% {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0);
-  }
-  35% {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(2);
-  }
-  100% {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(8);
-  }
-}
-
-@keyframes ringExpand {
-  0% {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0);
-  }
-  30% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(35);
-  }
-}
-
-@keyframes flashEffect {
-  0%, 30% { opacity: 0; }
-  42% { opacity: .95; }
-  55% { opacity: .15; }
-  100% { opacity: 0; }
-}
-
-@keyframes universeAppear {
-  0%, 35% { opacity: 0; }
-  100% { opacity: 1; }
-}
-
-@keyframes starDrift {
-  from { transform: translateY(0); }
-  to { transform: translateY(-160px); }
-}
-
-@keyframes titleAppear {
-  to {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-  }
-}
+#domain.active #close{animation:titleIn 1s 4s forwards}
 </style>
 </head>
 
 <body>
 
-<main id="menu">
-  <h1>DOMAIN EXPANSION</h1>
-  <p>CHOOSE YOUR DOMAIN</p>
-
-  <button class="domain online" onclick="openGojo()">
-    GOJO — INFINITE VOID · ONLINE
-  </button>
-
-  <button class="domain" onclick="showOffline('SUKUNA')">
-    SUKUNA — MALEVOLENT SHRINE
-  </button>
-
-  <button class="domain" onclick="showOffline('HAKARI')">
-    HAKARI — IDLE DEATH GAMBLE
-  </button>
-
-  <button class="domain" onclick="showOffline('MEGUMI')">
-    MEGUMI — CHIMERA SHADOW GARDEN
-  </button>
-
-  <button class="domain" onclick="showOffline('MAHITO')">
-    MAHITO — SELF-EMBODIMENT OF PERFECTION
-  </button>
-
-  <p id="message" aria-live="polite"></p>
-</main>
-
-<section id="gojoPage">
-  <h1>GOJO — INFINITE VOID</h1>
-  <p>Hold Gojo's crossed-finger sign in front of the camera.</p>
-
-  <video id="camera" autoplay playsinline muted></video>
-
-  <p id="status">Camera is starting...</p>
-
-  <button onclick="backToMenu()">
-    BACK TO DOMAINS
-  </button>
+<section id="menu" class="page active">
+ <h1>DOMAIN EXPANSION</h1>
+ <p>Choose your sorcerer</p>
+ <div class="characters">
+  <button class="character" onclick="openGojo()">GOJO<br>ONLINE</button>
+  <div class="character offline">SUKUNA<br>COMING SOON</div>
+  <div class="character offline">HAKARI<br>COMING SOON</div>
+  <div class="character offline">MEGUMI<br>COMING SOON</div>
+  <div class="character offline">MAHITO<br>COMING SOON</div>
+ </div>
 </section>
 
-<section id="void">
-  <div id="universe"></div>
-  <div id="stars"></div>
+<section id="cameraPage" class="page">
+ <h1>GOJO SATORU</h1>
+ <p>Show your hand to activate the domain</p>
+ <video id="camera" autoplay playsinline></video>
+ <p id="status">Starting camera...</p>
+ <button onclick="backToMenu()">BACK</button>
+</section>
 
-  <div id="energy">
-    <div class="streak"></div>
-    <div class="streak"></div>
-    <div class="streak"></div>
-    <div class="streak"></div>
-    <div class="streak"></div>
-    <div class="streak"></div>
-    <div class="streak"></div>
-    <div class="streak"></div>
-    <div class="streak"></div>
-    <div class="streak"></div>
-    <div class="streak"></div>
-    <div class="streak"></div>
-  </div>
-
-  <div id="burst"></div>
-  <div id="ring"></div>
-  <div id="flash"></div>
-
-  <h1 id="voidTitle">
-    領域展開
-    <br>
-    INFINITE VOID
-  </h1>
-
-  <button id="close" onclick="closeDomain()">
-    CLOSE DOMAIN
-  </button>
+<section id="domain" class="page">
+ <div id="universe"></div>
+ <div id="galaxy"></div>
+ <div id="stars"></div>
+ <div id="stars2"></div>
+ <div id="stars3"></div>
+ <div id="energy"></div>
+ <div id="ring"></div>
+ <div id="flash"></div>
+ <div>
+  <div id="domainTitle">INFINITE VOID</div>
+  <div id="subtitle">DOMAIN EXPANSION</div>
+ </div>
+ <button id="close" onclick="closeDomain()">CLOSE DOMAIN</button>
 </section>
 
 <script>
-const menu = document.getElementById("menu");
-const gojoPage = document.getElementById("gojoPage");
-const video = document.getElementById("camera");
-const statusText = document.getElementById("status");
-const voidScreen = document.getElementById("void");
-const message = document.getElementById("message");
+const menu=document.getElementById("menu");
+const cameraPage=document.getElementById("cameraPage");
+const domain=document.getElementById("domain");
+const video=document.getElementById("camera");
+const statusText=document.getElementById("status");
 
-let hands = null;
-let camera = null;
-let active = false;
-let matchingFrames = 0;
-let lastActivation = 0;
-let starting = false;
+let camera=null;
+let hands=null;
+let domainActive=false;
+let lastActivation=0;
 
-function showOffline(name) {
-  message.textContent =
-    name + " DOMAIN IS OFFLINE — COMING SOON!";
+function showPage(page){
+ document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+ page.classList.add("active");
 }
 
-async function openGojo() {
-  if (starting) return;
+async function openGojo(){
+ showPage(cameraPage);
+ statusText.textContent="Requesting camera permission...";
+ try{
+  hands=new Hands({
+   locateFile:(file)=>`https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+  });
+  hands.setOptions({
+   maxNumHands:1,
+   modelComplexity:1,
+   minDetectionConfidence:.7,
+   minTrackingConfidence:.7
+  });
+  hands.onResults(onHandResults);
 
-  starting = true;
-  menu.style.display = "none";
-  gojoPage.style.display = "block";
+  camera=new Camera(video,{
+   onFrame:async()=>{
+    if(hands) await hands.send({image:video});
+   },
+   width:640,
+   height:480
+  });
+  await camera.start();
+  statusText.textContent="Camera ready. Extend your index finger.";
+ }catch(error){
+  statusText.textContent="Camera error: allow camera access and use HTTPS.";
+  console.error(error);
+ }
+}
 
-  statusText.textContent = "Requesting camera permission...";
+/* This is a simple index-finger pose detector, not crossed-finger recognition. */
+function isGojoPose(landmarks){
+ const indexUp=landmarks[8].y<landmarks[6].y;
+ const middleDown=landmarks[12].y>landmarks[10].y;
+ const ringDown=landmarks[16].y>landmarks[14].y;
+ const pinkyDown=landmarks[20].y>landmarks[18].y;
+ return indexUp&&middleDown&&ringDown&&pinkyDown;
+}
 
-  try {
-    hands = new Hands({
-      locateFile: file =>
-        "https://cdn.jsdelivr.net/npm/@mediapipe/hands/" + file
-    });
-
-    hands.setOptions({
-      maxNumHands: 1,
-      modelComplexity: 1,
-      minDetectionConfidence: 0.65,
-      minTrackingConfidence: 0.65
-    });
-
-    hands.onResults(onHandResults);
-
-    camera = new Camera(video, {
-      onFrame: async () => {
-        if (hands && video.readyState >= 2) {
-          await hands.send({ image: video });
-        }
-      },
-      width: 640,
-      height: 480
-    });
-
-    await camera.start();
-
-    statusText.textContent =
-      "Camera ready — show Gojo's crossed-finger sign.";
-
-  } catch (error) {
-    console.error(error);
-    statusText.textContent =
-      "Camera or hand tracking failed. Check camera permission and reload.";
-  } finally {
-    starting = false;
+function onHandResults(results){
+ if(domainActive)return;
+ if(results.multiHandLandmarks&&results.multiHandLandmarks.length){
+  const hand=results.multiHandLandmarks[0];
+  if(isGojoPose(hand)){
+   statusText.textContent="DOMAIN EXPANSION!";
+   if(Date.now()-lastActivation>4000){
+    lastActivation=Date.now();
+    activateDomain();
+   }
+  }else{
+   statusText.textContent="Hand detected. Make the activation pose.";
   }
+ }else{
+  statusText.textContent="Show your hand to the camera.";
+ }
 }
 
-function distance(a, b) {
-  return Math.hypot(
-    a.x - b.x,
-    a.y - b.y,
-    (a.z || 0) - (b.z || 0)
-  );
+function activateDomain(){
+ if(domainActive)return;
+ domainActive=true;
+ showPage(domain);
+
+ // Restart the animation every time the domain opens.
+ const animatedIds=["universe","stars","stars2","stars3","galaxy",
+                    "energy","ring","flash","domainTitle","subtitle"];
+ animatedIds.forEach(id=>{
+  const el=document.getElementById(id);
+  el.style.animation="none";
+  void el.offsetWidth;
+  el.style.animation="";
+ });
 }
 
-function fingerExtended(points, tip, pip) {
-  return distance(points[tip], points[0]) >
-    distance(points[pip], points[0]) * 1.12;
+function closeDomain(){
+ domainActive=false;
+ showPage(cameraPage);
 }
 
-function fingerCurled(points, tip, pip) {
-  return distance(points[tip], points[0]) <
-    distance(points[pip], points[0]) * 1.08;
+function backToMenu(){
+ domainActive=false;
+ if(camera){
+  camera.stop();
+  camera=null;
+ }
+ if(video.srcObject){
+  video.srcObject.getTracks().forEach(track=>track.stop());
+  video.srcObject=null;
+ }
+ hands=null;
+ showPage(menu);
 }
-
-function isGojoPose(points) {
-  const indexExtended = fingerExtended(points, 8, 6);
-  const middleCurled = fingerCurled(points, 12, 10);
-  const ringCurled = fingerCurled(points, 16, 14);
-  const pinkyCurled = fingerCurled(points, 20, 18);
-
-  return (
-    indexExtended &&
-    middleCurled &&
-    ringCurled &&
-    pinkyCurled
-  );
-}
-
-function onHandResults(results) {
-  const landmarks = results.multiHandLandmarks;
-
-  if (!landmarks || landmarks.length === 0) {
-    matchingFrames = 0;
-    statusText.textContent =
-      "No hand found — move your hand into view.";
-    return;
-  }
-
-  const poseMatches = isGojoPose(landmarks[0]);
-
-  if (poseMatches) {
-    matchingFrames++;
-
-    statusText.textContent =
-      "Possible Gojo pose detected — hold still...";
-
-    if (
-      matchingFrames >= 10 &&
-      !active &&
-      Date.now() - lastActivation > 2500
-    ) {
-      activateDomain();
-    }
-  } else {
-    matchingFrames = 0;
-    statusText.textContent =
-      "Hand found, but Gojo's pose does not match yet.";
-  }
-}
-
-function activateDomain() {
-  active = true;
-  lastActivation = Date.now();
-
-  voidScreen.style.display = "block";
-
-  /* Restart the animation every activation */
-  voidScreen.classList.remove("playing");
-  voidScreen.offsetWidth;
-  voidScreen.classList.add("playing");
-}
-
-function closeDomain() {
-  active = false;
-  matchingFrames = 0;
-
-  voidScreen.classList.remove("playing");
-  voidScreen.style.display = "none";
-}
-
-async function backToMenu() {
-  closeDomain();
-
-  if (camera) {
-    camera.stop();
-    camera = null;
-  }
-
-  if (hands) {
-    await hands.close();
-    hands = null;
-  }
-
-  video.srcObject = null;
-
-  gojoPage.style.display = "none";
-  menu.style.display = "block";
-
-  statusText.textContent = "Camera stopped.";
-}
-
-window.addEventListener("pagehide", () => {
-  if (camera) camera.stop();
-  if (hands) hands.close();
-});
 </script>
-
 </body>
 </html>
