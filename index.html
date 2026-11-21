@@ -1,279 +1,407 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Domain Expansion</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+  <title>Domain Expansion</title>
 
-<style>
-* { box-sizing: border-box; }
-body {
-  margin: 0;
-  background: #050510;
-  color: white;
-  font-family: Arial, sans-serif;
-  text-align: center;
-}
-button {
-  padding: 15px 22px;
-  margin: 8px;
-  border: 1px solid #777;
-  border-radius: 12px;
-  background: #17172b;
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
-}
-button:active { transform: scale(.97); }
-#menu { padding: 35px 15px; }
-h1 { letter-spacing: 4px; }
-.domain {
-  display: block;
-  width: min(90%, 430px);
-  margin: 12px auto;
-}
-.online { border-color: #65aaff; }
-#message { color: #ff7777; min-height: 25px; }
-#gojoPage { display: none; padding: 20px; }
-video {
-  width: min(90%, 420px);
-  border-radius: 15px;
-  transform: scaleX(-1);
-}
-#status { color: #9ccaff; }
-#void {
-  display: none;
-  position: fixed;
-  inset: 0;
-  overflow: hidden;
-  background:
-    radial-gradient(ellipse at center, #e7ddff 0%, #7770d9 12%,
-    #25205f 35%, #08051f 75%, #000 100%);
-  z-index: 5;
-  animation: appear 1.2s ease-out;
-}
-#void h1 {
-  position: relative;
-  z-index: 2;
-  top: 40%;
-  font-size: clamp(30px, 7vw, 65px);
-  text-shadow: 0 0 25px #b9aaff;
-}
-#stars {
-  position: absolute;
-  inset: 0;
-  background-image:
-    radial-gradient(2px 2px at 20% 30%, white 90%, transparent),
-    radial-gradient(2px 2px at 70% 60%, white 90%, transparent),
-    radial-gradient(3px 3px at 45% 80%, #c8baff 90%, transparent),
-    radial-gradient(2px 2px at 85% 15%, white 90%, transparent);
-  background-size: 180px 180px;
-  animation: drift 8s linear infinite;
-}
-#close {
-  position: absolute;
-  z-index: 10;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #17122f;
-}
-@keyframes appear {
-  from { opacity: 0; transform: scale(1.3); }
-  to { opacity: 1; transform: scale(1); }
-}
-@keyframes drift {
-  from { transform: translateY(0); }
-  to { transform: translateY(-180px); }
-}
-</style>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #050510;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+
+    button {
+      padding: 15px 22px;
+      margin: 8px;
+      border: 1px solid #777;
+      border-radius: 12px;
+      background: #17172b;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
+    #menu {
+      padding: 35px 15px;
+    }
+
+    h1 {
+      letter-spacing: 4px;
+    }
+
+    .domain {
+      display: block;
+      width: min(90%, 430px);
+      margin: 12px auto;
+    }
+
+    .online {
+      border-color: #65aaff;
+      background: #172554;
+    }
+
+    #message {
+      color: #ff7777;
+      min-height: 25px;
+    }
+
+    #gojoPage {
+      display: none;
+      padding: 20px;
+    }
+
+    video {
+      width: min(90%, 420px);
+      border-radius: 15px;
+      transform: scaleX(-1);
+    }
+
+    #status {
+      color: #9ccaff;
+    }
+
+    #void {
+      display: none;
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      background:
+        radial-gradient(
+          ellipse at center,
+          #e7ddff 0%,
+          #7770d9 12%,
+          #25205f 35%,
+          #08051f 75%,
+          #000 100%
+        );
+      z-index: 5;
+      animation: appear 1.2s ease-out;
+    }
+
+    #void h1 {
+      position: relative;
+      z-index: 2;
+      top: 40%;
+      font-size: clamp(30px, 7vw, 65px);
+      text-shadow: 0 0 25px #b9aaff;
+    }
+
+    #stars {
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(2px 2px at 20% 30%, white 90%, transparent),
+        radial-gradient(2px 2px at 70% 60%, white 90%, transparent),
+        radial-gradient(3px 3px at 45% 80%, #c8baff 90%, transparent),
+        radial-gradient(2px 2px at 85% 15%, white 90%, transparent);
+      background-size: 180px 180px;
+      animation: drift 8s linear infinite;
+    }
+
+    #close {
+      position: absolute;
+      z-index: 10;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #17122f;
+    }
+
+    @keyframes appear {
+      from {
+        opacity: 0;
+        transform: scale(1.3);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes drift {
+      from {
+        transform: translateY(0);
+      }
+
+      to {
+        transform: translateY(-180px);
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-<section id="menu">
-  <h1>DOMAIN EXPANSION</h1>
-  <p>CHOOSE YOUR DOMAIN</p>
+  <!-- DOMAIN SELECTION MENU -->
 
-  <button class="domain online" onclick="openGojo()">
-    GOJO — INFINITE VOID · ONLINE
-  </button>
+  <section id="menu">
+    <h1>DOMAIN EXPANSION</h1>
+    <p>CHOOSE YOUR DOMAIN</p>
 
-  <button class="domain" onclick="offline('Sukuna')">
-    SUKUNA — MALEVOLENT SHRINE
-  </button>
-  <button class="domain" onclick="offline('Hakari')">
-    HAKARI — IDLE DEATH GAMBLE
-  </button>
-  <button class="domain" onclick="offline('Megumi')">
-    MEGUMI — CHIMERA SHADOW GARDEN
-  </button>
-  <button class="domain" onclick="offline('Mahito')">
-    MAHITO — SELF-EMBODIMENT OF PERFECTION
-  </button>
+    <button class="domain online" onclick="openGojo()">
+      GOJO — INFINITE VOID · ONLINE
+    </button>
 
-  <p id="message"></p>
-</section>
+    <button class="domain" onclick="offline('Sukuna')">
+      SUKUNA — MALEVOLENT SHRINE
+    </button>
 
-<section id="gojoPage">
-  <h1>GOJO — INFINITE VOID</h1>
-  <p>Make Gojo's crossed-finger hand sign.</p>
-  <video id="camera" autoplay playsinline muted></video>
-  <p id="status">Starting camera...</p>
-  <button onclick="backToMenu()">BACK TO DOMAINS</button>
-</section>
+    <button class="domain" onclick="offline('Hakari')">
+      HAKARI — IDLE DEATH GAMBLE
+    </button>
 
-<div id="void">
-  <div id="stars"></div>
-  <h1>領域展開<br>INFINITE VOID</h1>
-  <button id="close" onclick="closeDomain()">CLOSE DOMAIN</button>
-</div>
+    <button class="domain" onclick="offline('Megumi')">
+      MEGUMI — CHIMERA SHADOW GARDEN
+    </button>
 
-<script>
-const menu = document.getElementById("menu");
-const gojoPage = document.getElementById("gojoPage");
-const video = document.getElementById("camera");
-const statusText = document.getElementById("status");
-const voidScreen = document.getElementById("void");
-const message = document.getElementById("message");
+    <button class="domain" onclick="offline('Mahito')">
+      MAHITO — SELF-EMBODIMENT OF PERFECTION
+    </button>
 
-let camera = null;
-let hands = null;
-let active = false;
-let lastActivation = 0;
-let matchingFrames = 0;
+    <p id="message"></p>
+  </section>
 
-function offline(name) {
-  message.textContent = name.toUpperCase() +
-    " DOMAIN IS OFFLINE — COMING SOON!";
-}
 
-async function openGojo() {
-  menu.style.display = "none";
-  gojoPage.style.display = "block";
-  message.textContent = "";
+  <!-- GOJO CAMERA PAGE -->
 
-  try {
-    hands = new Hands({
-      locateFile: file =>
-        "https://cdn.jsdelivr.net/npm/@mediapipe/hands/" + file
-    });
+  <section id="gojoPage">
+    <h1>GOJO — INFINITE VOID</h1>
 
-    hands.setOptions({
-      maxNumHands: 1,
-      modelComplexity: 1,
-      minDetectionConfidence: 0.75,
-      minTrackingConfidence: 0.75
-    });
+    <p>Make Gojo's crossed-finger hand sign.</p>
 
-    hands.onResults(results => {
-      if (!results.multiHandLandmarks ||
-          !results.multiHandLandmarks.length) {
-        matchingFrames = 0;
-        statusText.textContent = "Show the crossed-finger sign";
-        return;
+    <video id="camera" autoplay playsinline muted></video>
+
+    <p id="status">Starting camera...</p>
+
+    <button onclick="backToMenu()">
+      BACK TO DOMAINS
+    </button>
+  </section>
+
+
+  <!-- INFINITE VOID SCREEN -->
+
+  <div id="void">
+    <div id="stars"></div>
+
+    <h1>
+      領域展開
+      <br>
+      INFINITE VOID
+    </h1>
+
+    <button id="close" onclick="closeDomain()">
+      CLOSE DOMAIN
+    </button>
+  </div>
+
+
+  <script>
+    const menu = document.getElementById("menu");
+    const gojoPage = document.getElementById("gojoPage");
+    const video = document.getElementById("camera");
+    const statusText = document.getElementById("status");
+    const voidScreen = document.getElementById("void");
+    const message = document.getElementById("message");
+
+    let camera = null;
+    let hands = null;
+
+    let active = false;
+    let lastActivation = 0;
+    let matchingFrames = 0;
+
+
+    // OFFLINE DOMAIN BUTTONS
+
+    function offline(name) {
+      message.textContent =
+        name.toUpperCase() + " DOMAIN IS OFFLINE — COMING SOON!";
+    }
+
+
+    // OPEN GOJO'S DOMAIN PAGE
+
+    async function openGojo() {
+      menu.style.display = "none";
+      gojoPage.style.display = "block";
+
+      message.textContent = "";
+
+      try {
+        hands = new Hands({
+          locateFile: file =>
+            "https://cdn.jsdelivr.net/npm/@mediapipe/hands/" + file
+        });
+
+        hands.setOptions({
+          maxNumHands: 1,
+          modelComplexity: 1,
+          minDetectionConfidence: 0.75,
+          minTrackingConfidence: 0.75
+        });
+
+        hands.onResults(results => {
+          if (
+            !results.multiHandLandmarks ||
+            !results.multiHandLandmarks.length
+          ) {
+            matchingFrames = 0;
+            statusText.textContent = "Show the crossed-finger sign";
+            return;
+          }
+
+          const points = results.multiHandLandmarks[0];
+
+          if (isGojoPose(points)) {
+            matchingFrames++;
+
+            statusText.textContent = "Gojo pose detected...";
+
+            if (
+              matchingFrames >= 12 &&
+              !active &&
+              Date.now() - lastActivation > 3000
+            ) {
+              activateDomain();
+            }
+          } else {
+            matchingFrames = 0;
+            statusText.textContent = "Gojo pose not detected";
+          }
+        });
+
+        camera = new Camera(video, {
+          onFrame: async () => {
+            if (hands) {
+              await hands.send({ image: video });
+            }
+          },
+          width: 640,
+          height: 480
+        });
+
+        await camera.start();
+
+        statusText.textContent =
+          "Camera ready — make the Gojo sign!";
+
+      } catch (error) {
+        statusText.textContent =
+          "Camera could not start. Check camera permission.";
+
+        console.error(error);
+      }
+    }
+
+
+    // HAND DETECTION HELPERS
+
+    function distance(a, b) {
+      return Math.hypot(
+        a.x - b.x,
+        a.y - b.y
+      );
+    }
+
+    function orientation(a, b, c) {
+      return (
+        (b.x - a.x) * (c.y - a.y) -
+        (b.y - a.y) * (c.x - a.x)
+      );
+    }
+
+    function segmentsCross(a, b, c, d) {
+      const o1 = orientation(a, b, c);
+      const o2 = orientation(a, b, d);
+      const o3 = orientation(c, d, a);
+      const o4 = orientation(c, d, b);
+
+      return o1 * o2 < 0 && o3 * o4 < 0;
+    }
+
+
+    // GOJO CROSSED-FINGER DETECTOR
+    // This is a starting approximation that needs camera testing.
+
+    function isGojoPose(p) {
+      const crossing = segmentsCross(
+        p[6],
+        p[7],
+        p[10],
+        p[11]
+      );
+
+      const ringCurled =
+        distance(p[16], p[0]) <
+        distance(p[13], p[0]);
+
+      const pinkyCurled =
+        distance(p[20], p[0]) <
+        distance(p[17], p[0]);
+
+      return (
+        crossing &&
+        ringCurled &&
+        pinkyCurled
+      );
+    }
+
+
+    // ACTIVATE INFINITE VOID
+
+    function activateDomain() {
+      active = true;
+      lastActivation = Date.now();
+
+      voidScreen.style.display = "block";
+    }
+
+
+    // CLOSE INFINITE VOID
+
+    function closeDomain() {
+      active = false;
+      matchingFrames = 0;
+
+      voidScreen.style.display = "none";
+    }
+
+
+    // RETURN TO DOMAIN MENU
+
+    function backToMenu() {
+      if (camera) {
+        camera.stop();
+        camera = null;
       }
 
-      const points = results.multiHandLandmarks[0];
+      hands = null;
 
-      if (isGojoPose(points)) {
-        matchingFrames++;
-        statusText.textContent = "Gojo pose detected...";
+      closeDomain();
 
-        // Require a steady pose across multiple frames.
-        if (matchingFrames >= 12 && !active &&
-            Date.now() - lastActivation > 3000) {
-          activateDomain();
-        }
-      } else {
-        matchingFrames = 0;
-        statusText.textContent = "Gojo pose not detected";
-      }
-    });
+      gojoPage.style.display = "none";
+      menu.style.display = "block";
+    }
 
-    camera = new Camera(video, {
-      onFrame: async () => {
-        if (hands) await hands.send({ image: video });
-      },
-      width: 640,
-      height: 480
-    });
+  </script>
 
-    await camera.start();
-    statusText.textContent = "Camera ready — make the Gojo sign!";
-  } catch (error) {
-    statusText.textContent =
-      "Camera could not start. Check camera permission.";
-    console.error(error);
-  }
-}
-
-// Initial landmark-based approximation of the photographed pose.
-// This is deliberately stricter than the old two-fingers-up test,
-// but needs live testing to tune the crossing geometry.
-function distance(a, b) {
-  return Math.hypot(a.x - b.x, a.y - b.y);
-}
-
-function fingerCurled(points, tip, pip, mcp) {
-  return distance(points[tip], points[0]) <
-         distance(points[mcp], points[0]) &&
-         distance(points[tip], points[pip]) <
-         distance(points[mcp], points[pip]);
-}
-
-function isGojoPose(p) {
-  const indexExtended =
-    p[8].y < p[6].y && p[6].y < p[5].y;
-
-  const middleBent =
-    p[12].y > p[10].y;
-
-  const ringCurled =
-    fingerCurled(p, 16, 14, 13);
-
-  const pinkyCurled =
-    fingerCurled(p, 20, 18, 17);
-
-  // Check that the bent middle finger comes close to
-  // the extended index finger, as in the reference pose.
-  const fingersClose =
-    distance(p[12], p[8]) < 0.22;
-
-  return indexExtended &&
-         middleBent &&
-         ringCurled &&
-         pinkyCurled &&
-         fingersClose;
-}
-
-function activateDomain() {
-  active = true;
-  lastActivation = Date.now();
-  voidScreen.style.display = "block";
-}
-
-function closeDomain() {
-  active = false;
-  matchingFrames = 0;
-  voidScreen.style.display = "none";
-}
-
-function backToMenu() {
-  if (camera) {
-    camera.stop();
-    camera = null;
-  }
-  hands = null;
-  closeDomain();
-  gojoPage.style.display = "none";
-  menu.style.display = "block";
-}
-
-</script>
 </body>
 </html>
